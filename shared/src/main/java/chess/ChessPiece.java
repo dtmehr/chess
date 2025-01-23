@@ -1,6 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+
 import chess.PieceLogic.*;
 //the .* is to include everything in MoveCalculator
 /**
@@ -52,10 +55,28 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return switch (pieceType) {
-        case BISHOP -> BishopMoveCalculator.getMoves(board, myPosition);
+       return new ArrayList<>();
+    }
 
+    @Override
+    public String toString() {
+        return "ChessPiece{" +
+                "teamColor=" + teamColor +
+                ", pieceType=" + pieceType +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
         }
-        ;
+        ChessPiece that = (ChessPiece) o;
+        return teamColor == that.teamColor && pieceType == that.pieceType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamColor, pieceType);
     }
 }
