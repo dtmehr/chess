@@ -3,7 +3,9 @@ package chess;
 import java.util.Collection;
 import java.util.Objects;
 
-import chess.PieceLogic.*;
+import chess.MoveCalculators.*;
+
+
 //the .* is to include everything in MoveCalculator
 /**
  * Represents a single chess piece
@@ -54,7 +56,7 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return switch (type) {
+        return switch (pieceType) {
             case ROOK -> RookMovementLogic.getMoves(board, myPosition);
             case KNIGHT -> KnightMovementLogic.getMoves(board, myPosition);
             case BISHOP -> BishopMovementLogic.getMoves(board, myPosition);
