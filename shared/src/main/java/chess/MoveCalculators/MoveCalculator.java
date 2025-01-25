@@ -16,7 +16,7 @@ interface MoveCalculator {
     //check for opponent pieces in path
     //check for own pieces in path
     //used in every piece logic
-    static HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition position, int[][] directions){
+    static HashSet<ChessMove> calculateMoves(ChessBoard board, ChessPosition position, int[][] directions, boolean continuous){
             // start with the current position of the piece
             int currentRow = position.getRow();
             int currentColumn = position.getColumn();
@@ -47,6 +47,10 @@ interface MoveCalculator {
                         if (currentPiece != null && !piece.getTeamColor().equals(currentPiece.getTeamColor())) {
                             totalMoves.add(new ChessMove(position, newPosition, null));
                         }
+                        break;
+                    }
+                    //some pieces need to move continuously, but some dont
+                    if (!continuous){
                         break;
                     }
                 }

@@ -11,6 +11,6 @@ import static chess.MoveCalculators.MoveCalculator.calculateMoves;
 public class RookMovementLogic {
     public static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position){
         int [][] directions = {{1, 0}, {-1, 0}, {0, -1}, {0, 1}};
-        return calculateMoves(board, position, directions);
+        return calculateMoves(board, position, directions, true);
     }
 }

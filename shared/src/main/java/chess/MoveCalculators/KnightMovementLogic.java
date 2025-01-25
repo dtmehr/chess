@@ -10,7 +10,7 @@ import static chess.MoveCalculators.MoveCalculator.calculateMoves;
 
 public class KnightMovementLogic {
     public static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position){
-        int [][] directions = {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
-        return calculateMoves(board, position, directions);
+        int [][] directions = {{1, 2}, {-1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1}, {-2, 1}};
+        return calculateMoves(board, position, directions, false);
     }
 }
