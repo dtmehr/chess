@@ -1,6 +1,10 @@
 package chess;
 
+
+import chess.MoveCalculators.*;
+
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
 
 /**
@@ -55,9 +59,52 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        //to do later
-        throw new RuntimeException("Not implemented");
+        //get piece
+        ChessPiece piece = board.getPiece(startPosition);
+
+        //check if is empty
+        if(piece == null){
+            return new HashSet<>();
+        }
+        //check if its this pieces turn
+        if(piece.getTeamColor() != teamTurn){
+            return new HashSet<>();
+        }
+        //empty hashset for moves before checking if they are legal or not
+        HashSet<ChessMove> allMoves = new HashSet<>();
+        //go through piece types to run logic
+        switch (piece.getPieceType()) {
+            case ROOK:
+                allMoves.addAll(RookMovementLogic.getMoves(board, startPosition));
+                break;
+            case BISHOP:
+                allMoves.addAll(BishopMovementLogic.getMoves(board, startPosition));
+                break;
+            case KNIGHT:
+                allMoves.addAll(KnightMovementLogic.getMoves(board, startPosition));
+                break;
+            case QUEEN:
+                allMoves.addAll(QueenMovementLogic.getMoves(board, startPosition));
+                break;
+            case KING:
+                allMoves.addAll(KingMovementLogic.getMoves(board, startPosition));
+                break;
+            case PAWN:
+                allMoves.addAll(PawnMovementLogic.getMoves(board, startPosition));
+                break;
+        }
+
+        //remove moves from allMoves that put the king in check
+        // ChessBoard tempBoard = board.copy();
+
+        //complete later
+
+        return allMoves;
     }
+
+
+
+
 
     /**
      * Makes a move in a chess game
@@ -98,6 +145,9 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        //basically gonna check if there are ANY valid moves
+        //if there arent any, then it should return true
+        //if there are valid moves, it should return false
         throw new RuntimeException("Not implemented");
     }
 
