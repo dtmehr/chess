@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
+import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessPiece.PieceType.KING;
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -150,7 +153,45 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        //go through each piece on the board to find the king
+        //set null king pos to be filled later
+        ChessPosition king = null;
+        for (int y = 1; y <= 8; y++) {
+            for (int x = 1; x <= 8; x++) {
+                ChessPosition square = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(square);
+                if (piece != null && piece.getPieceType() == KING && piece.getTeamColor() == teamColor) {
+                    king = square;
+                }
+            }
+        }
+
+        //check if opponent can attack king rn
+        //find op team color
+        TeamColor opponent = (teamColor == TeamColor.WHITE) ? BLACK : TeamColor.WHITE;
+        //same start to loop as before
+        for (int y = 1; y <= 8; y++) {
+            for (int x = 1; x <= 8; x++) {
+                ChessPosition square = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(square);
+                //this might be helpful for edge case scenarios?
+                if(piece == null){
+                    continue;
+                }
+                //create opMoves
+                //if any of them end where king is, king is in check
+                if(piece.getTeamColor() == opponent){
+                    Collection<ChessMove> opMoves = validMoves(square);
+                    for(ChessMove move : opMoves){
+                        if(move.getEndPosition().equals(king)){
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        //if no move ends where king is, king is not in check
+        return false;
     }
 
     /**
