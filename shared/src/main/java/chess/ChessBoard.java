@@ -91,6 +91,24 @@ public class ChessBoard {
         for (int i = 1; i <= 8; i++) {
             addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
         }
+
+    }
+
+    public ChessBoard copyBoard(){
+        //empty board
+        ChessBoard copiedBoard = new ChessBoard();
+        //loop through pieces same as in inCheck, etc
+        for (int y = 1; y <= 8; y++) {
+            for (int x = 1; x <= 8; x++) {
+                ChessPiece ogPiece = this.squares[x][y];
+                //for each piece get the attributes
+                if(ogPiece != null){
+                    ChessPiece pieceCopy = new ChessPiece(ogPiece.getTeamColor(),ogPiece.getPieceType());
+                    copiedBoard.squares[x][y] = pieceCopy;
+                }
+            }
+        }
+        return copiedBoard;
     }
 
     @Override

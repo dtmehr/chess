@@ -98,9 +98,10 @@ public class ChessGame {
         }
 
         //remove moves from allMoves that put the king in check
-        // ChessBoard tempBoard = board.copy();
+        ChessBoard tempBoard = board.copyBoard();
 
-        //complete later
+
+
 
         return allMoves;
     }
