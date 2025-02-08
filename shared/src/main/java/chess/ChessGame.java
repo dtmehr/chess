@@ -12,6 +12,7 @@ import static chess.ChessGame.TeamColor.BLACK;
 import static chess.ChessGame.TeamColor.WHITE;
 import static chess.ChessPiece.PieceType.KING;
 
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -24,6 +25,7 @@ public class ChessGame {
     private boolean endGame;
     private ChessBoard board;
     private TeamColor teamTurn;
+
 
     public ChessGame() {
         //white goes first
@@ -71,12 +73,11 @@ public class ChessGame {
             return new HashSet<>();
         }
 
-
         //all moves before doing filtering
         Collection<ChessMove> unfilteredMoves = piece.pieceMoves(board, startPosition);
-        if(piece.getTeamColor() != teamTurn){
-            return unfilteredMoves;
-        }
+//        if(piece.getTeamColor() != teamTurn){
+//            return unfilteredMoves;
+//        }
         //now filter all moves
         Collection<ChessMove> moves = new HashSet<>();
 
@@ -84,15 +85,13 @@ public class ChessGame {
         for(ChessMove move : unfilteredMoves){
             //use the copy method made earlier
             ChessBoard copiedBoard = board.copyBoard();
-            ChessPiece changePiece = copiedBoard.getPiece(move.getEndPosition());
-            //get start and end positions
             ChessPiece toMove = copiedBoard.getPiece(move.getStartPosition());
             copiedBoard.addPiece(move.getStartPosition(), null);
             copiedBoard.addPiece(move.getEndPosition(), toMove);
 
             ChessGame tempGame = new ChessGame();
             tempGame.setBoard(copiedBoard);
-            tempGame.setTeamTurn(teamTurn);
+            tempGame.setTeamTurn(piece.getTeamColor());
 
             //make sure king not in check in order to add move
             if(!tempGame.isInCheck(piece.getTeamColor())){
@@ -164,6 +163,17 @@ public class ChessGame {
 
 
     }
+    //got stuck, made this to help
+    //remove and optimize later
+    //there was an issue in valid moves line 78. not sure why but that logic statement ruined the whole thing ad
+    //caused a ton of issues with testing. this function makes it test outside of the validMoves function so it works.
+    private Collection<ChessMove> fakeValidMoves(ChessPosition startPosition){
+        ChessPiece piece = board.getPiece(startPosition);
+        if(piece == null){
+            return new HashSet<>();
+        }
+        return piece.pieceMoves(board, startPosition);
+    }
 
     /**
      * Determines if the given team is in check
@@ -184,7 +194,6 @@ public class ChessGame {
                 }
             }
         }
-
         //check if opponent can attack king rn
         //find op team color
         TeamColor opponent = (teamColor == TeamColor.WHITE) ? BLACK : TeamColor.WHITE;
@@ -200,7 +209,7 @@ public class ChessGame {
                 //create opMoves
                 //if any of them end where king is, king is in check
                 if(piece.getTeamColor() == opponent){
-                    Collection<ChessMove> opMoves = validMoves(square);
+                    Collection<ChessMove> opMoves = fakeValidMoves(square);
                     for(ChessMove move : opMoves){
                         if(move.getEndPosition().equals(king)){
                             return true;
@@ -221,7 +230,21 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
         //if king is in check and there aren't valid moves the game is over
-        return isInCheck(teamColor) && isInStalemate(teamColor);
+        if(!isInCheck(teamColor)){
+            return false;
+        }
+        for (int y = 1; y <= 8; y++) {
+            for (int x = 1; x <= 8; x++) {
+                ChessPosition square = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(square);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    if (!validMoves(square).isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     /**
