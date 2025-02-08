@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Objects;
 
 import static chess.ChessGame.TeamColor.BLACK;
+import static chess.ChessGame.TeamColor.WHITE;
 import static chess.ChessPiece.PieceType.KING;
 
 /**
@@ -65,16 +66,37 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         //get piece
         ChessPiece piece = board.getPiece(startPosition);
+        if(piece == null){
+            return null;
+        }
 
         //check if is empty
-        if(piece == null || piece.getTeamColor() != teamTurn){
+        if(piece.getTeamColor() != teamTurn){
             return new HashSet<>();
         }
         //all moves before doing filtering
         Collection<ChessMove> unfilteredMoves = piece.pieceMoves(board, startPosition);
-
         //now filter all moves
         Collection<ChessMove> moves = new HashSet<>();
+
+        for(ChessMove move : unfilteredMoves){
+            //use the copy method made earlier
+            ChessBoard copiedBoard = board.copyBoard();
+            ChessPiece changePiece = copiedBoard.getPiece(move.getStartPosition());
+            //get start and end positions
+            copiedBoard.addPiece(move.getStartPosition(), null);
+            copiedBoard.addPiece(move.getEndPosition(),changePiece);
+
+            ChessGame tempGame = new ChessGame();
+            tempGame.setBoard(copiedBoard);
+            tempGame.setTeamTurn(teamTurn);
+
+            //make sure king not in check in order to add move
+            if(!tempGame.isInCheck(piece.getTeamColor())){
+                moves.add(move);
+            }
+
+        }
 
         //do later, got stuck
         return moves;
@@ -94,6 +116,12 @@ public class ChessGame {
         //get starting position
         //throw exep if there is no piece there
         ChessPosition startPos = move.getStartPosition();
+        ChessPosition endPos = move.getEndPosition();
+
+        if(endGame){
+            throw  new InvalidMoveException("Game is over");
+        }
+
         if(startPos == null){
             throw new InvalidMoveException("No piece at start position");
         }
@@ -112,11 +140,22 @@ public class ChessGame {
             throw new InvalidMoveException("move not valid");
         }
 
+        board.addPiece(move.getStartPosition(), null);
+        board.addPiece(move.getEndPosition(), piece);
         //do the move
         //startpos needs to lose its start and add its end
 
         //SWITCH TEAM TURN
+        if(teamTurn == WHITE){
+            teamTurn = BLACK;
+        }else{
+            teamTurn = WHITE;
+        }
+
         //CHECK IF ENDGAME (here or somewhere else)?
+        if(isInCheckmate(teamTurn) || isInStalemate(teamTurn)){
+            endGame = true;
+        }
 
 
     }

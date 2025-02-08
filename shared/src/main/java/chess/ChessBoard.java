@@ -99,13 +99,13 @@ public class ChessBoard {
         //empty board
         ChessBoard copiedBoard = new ChessBoard();
         //loop through pieces same as in inCheck, etc
-        for (int y = 1; y <= 8; y++) {
-            for (int x = 1; x <= 8; x++) {
-                ChessPiece ogPiece = this.squares[x][y];
+        for (int row = 1; row < 8; row++) {
+            for (int col = 1; col < 8; col++) {
+                ChessPiece ogPiece = this.squares[row][col];
                 //for each piece get the attributes
                 if(ogPiece != null){
                     ChessPiece pieceCopy = new ChessPiece(ogPiece.getTeamColor(),ogPiece.getPieceType());
-                    copiedBoard.squares[x][y] = pieceCopy;
+                    copiedBoard.squares[row][col] = pieceCopy;
                 }
             }
         }
