@@ -29,6 +29,7 @@ public class ChessGame {
         //white goes first
         //reset board
         board = new ChessBoard();
+        board.resetBoard();
         setTeamTurn(TeamColor.WHITE);
     }
 
@@ -67,25 +68,27 @@ public class ChessGame {
         //get piece
         ChessPiece piece = board.getPiece(startPosition);
         if(piece == null){
-            return null;
-        }
-
-        //check if is empty
-        if(piece.getTeamColor() != teamTurn){
             return new HashSet<>();
         }
+
+
         //all moves before doing filtering
         Collection<ChessMove> unfilteredMoves = piece.pieceMoves(board, startPosition);
+        if(piece.getTeamColor() != teamTurn){
+            return unfilteredMoves;
+        }
         //now filter all moves
         Collection<ChessMove> moves = new HashSet<>();
+
 
         for(ChessMove move : unfilteredMoves){
             //use the copy method made earlier
             ChessBoard copiedBoard = board.copyBoard();
-            ChessPiece changePiece = copiedBoard.getPiece(move.getStartPosition());
+            ChessPiece changePiece = copiedBoard.getPiece(move.getEndPosition());
             //get start and end positions
+            ChessPiece toMove = copiedBoard.getPiece(move.getStartPosition());
             copiedBoard.addPiece(move.getStartPosition(), null);
-            copiedBoard.addPiece(move.getEndPosition(),changePiece);
+            copiedBoard.addPiece(move.getEndPosition(), toMove);
 
             ChessGame tempGame = new ChessGame();
             tempGame.setBoard(copiedBoard);
@@ -118,16 +121,13 @@ public class ChessGame {
         ChessPosition startPos = move.getStartPosition();
         ChessPosition endPos = move.getEndPosition();
 
-        if(endGame){
-            throw  new InvalidMoveException("Game is over");
-        }
-
-        if(startPos == null){
+        ChessPiece piece = board.getPiece(startPos);
+        if(piece == null){
             throw new InvalidMoveException("No piece at start position");
         }
 
         //check teamcolor
-        ChessPiece piece = board.getPiece(startPos);
+
         if(piece.getTeamColor() != teamTurn){
             throw new InvalidMoveException("wrong team");
         }
@@ -142,6 +142,11 @@ public class ChessGame {
 
         board.addPiece(move.getStartPosition(), null);
         board.addPiece(move.getEndPosition(), piece);
+        ChessPiece.PieceType promoType = move.getPromotionPiece();
+        if(promoType != null){
+            piece = new ChessPiece(piece.getTeamColor(), promoType);
+            board.addPiece(endPos, piece);
+        }
         //do the move
         //startpos needs to lose its start and add its end
 

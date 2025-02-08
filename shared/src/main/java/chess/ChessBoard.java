@@ -99,8 +99,8 @@ public class ChessBoard {
         //empty board
         ChessBoard copiedBoard = new ChessBoard();
         //loop through pieces same as in inCheck, etc
-        for (int row = 1; row < 8; row++) {
-            for (int col = 1; col < 8; col++) {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
                 ChessPiece ogPiece = this.squares[row][col];
                 //for each piece get the attributes
                 if(ogPiece != null){
