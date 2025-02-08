@@ -94,6 +94,7 @@ public class ChessBoard {
 
     }
 
+//to be used in validMoves
     public ChessBoard copyBoard(){
         //empty board
         ChessBoard copiedBoard = new ChessBoard();

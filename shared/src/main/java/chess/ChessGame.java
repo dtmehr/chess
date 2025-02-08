@@ -5,6 +5,7 @@ import chess.MoveCalculators.*;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
 
 import static chess.ChessGame.TeamColor.BLACK;
@@ -66,44 +67,17 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
 
         //check if is empty
-        if(piece == null){
+        if(piece == null || piece.getTeamColor() != teamTurn){
             return new HashSet<>();
         }
-        //check if its this pieces turn
-        if(piece.getTeamColor() != teamTurn){
-            return new HashSet<>();
-        }
-        //empty hashset for moves before checking if they are legal or not
-        HashSet<ChessMove> allMoves = new HashSet<>();
-        //go through piece types to run logic
-        switch (piece.getPieceType()) {
-            case ROOK:
-                allMoves.addAll(RookMovementLogic.getMoves(board, startPosition));
-                break;
-            case BISHOP:
-                allMoves.addAll(BishopMovementLogic.getMoves(board, startPosition));
-                break;
-            case KNIGHT:
-                allMoves.addAll(KnightMovementLogic.getMoves(board, startPosition));
-                break;
-            case QUEEN:
-                allMoves.addAll(QueenMovementLogic.getMoves(board, startPosition));
-                break;
-            case KING:
-                allMoves.addAll(KingMovementLogic.getMoves(board, startPosition));
-                break;
-            case PAWN:
-                allMoves.addAll(PawnMovementLogic.getMoves(board, startPosition));
-                break;
-        }
+        //all moves before doing filtering
+        Collection<ChessMove> unfilteredMoves = piece.pieceMoves(board, startPosition);
 
-        //remove moves from allMoves that put the king in check
-        ChessBoard tempBoard = board.copyBoard();
+        //now filter all moves
+        Collection<ChessMove> moves = new HashSet<>();
 
-
-
-
-        return allMoves;
+        //do later, got stuck
+        return moves;
     }
 
 
@@ -217,7 +191,25 @@ public class ChessGame {
         //basically gonna check if there are ANY valid moves
         //if there arent any, then it should return true
         //if there are valid moves, it should return false
-        throw new RuntimeException("Not implemented");
+        //if in check, no stalemate
+        if(isInCheck(teamColor)){
+            return false;
+        }
+        //this is almost the same as the isincheck
+        for (int y = 1; y <= 8; y++) {
+            for (int x = 1; x <= 8; x++) {
+                ChessPosition square = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(square);
+                if (piece != null && piece.getTeamColor() == teamColor) {
+                    Collection<ChessMove> moves = validMoves(square);
+                    if (!moves.isEmpty()) {
+                        return false;
+                    }
+                }
+            }
+        }
+            return true;
+
     }
 
     /**
