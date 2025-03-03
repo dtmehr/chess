@@ -3,6 +3,8 @@ package dataaccess;
 import java.util.Map;
 import java.util.HashMap;
 import model.UserData;
+import model.AuthData;
+import model.GameData;
 
 public class MemoryDataAccess implements DataAccess{
 
@@ -18,59 +20,59 @@ public class MemoryDataAccess implements DataAccess{
             authTokens.clear();
             games.clear();
         } catch (Exception e) {
-            throw new DataAccessException("Unable to clear data", e);
+            throw new DataAccessException("Unable to clear data");
         }
     }
 
-    @Override
-    public void login() throws DataAccessException{
-        try {
-            //to do
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to clear data", e);
-        }
-
-    }
-
-    @Override
-    public void logout() throws DataAccessException{
-        try {
-            //to do
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to clear data", e);
-        }
-
-    }
-
-    @Override
-    public void listGames() throws DataAccessException{
-        try {
-            //to do
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to clear data", e);
-        }
-
-    }
-
-    @Override
-    public void createGame() throws DataAccessException{
-        try {
-            //to do
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to clear data", e);
-        }
-
-    }
-
-    @Override
-    public void joinGame() throws DataAccessException{
-        try {
-            //to do
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to clear data", e);
-        }
-
-    }
+//    @Override
+//    public void login() throws DataAccessException{
+//        try {
+//            //to do
+//        } catch (Exception e) {
+//            throw new DataAccessException("Unable to clear data", e);
+//        }
+//
+//    }
+//
+//    @Override
+//    public void logout() throws DataAccessException{
+//        try {
+//            //to do
+//        } catch (Exception e) {
+//            throw new DataAccessException("Unable to clear data", e);
+//        }
+//
+//    }
+//
+//    @Override
+//    public void listGames() throws DataAccessException{
+//        try {
+//            //to do
+//        } catch (Exception e) {
+//            throw new DataAccessException("Unable to clear data", e);
+//        }
+//
+//    }
+//
+//    @Override
+//    public void createGame() throws DataAccessException{
+//        try {
+//            //to do
+//        } catch (Exception e) {
+//            throw new DataAccessException("Unable to clear data", e);
+//        }
+//
+//    }
+//
+//    @Override
+//    public void joinGame() throws DataAccessException{
+//        try {
+//            //to do
+//        } catch (Exception e) {
+//            throw new DataAccessException("Unable to clear data", e);
+//        }
+//
+//    }
 
 
 }
