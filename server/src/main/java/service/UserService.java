@@ -18,7 +18,7 @@ public class UserService {
     public record RegisterResult(String username, String authToken) {}
 
     public RegisterResult register(String username, String password, String email) throws DataAccessException {
-        dataAccess.createUser();
+        dataAccess.createUser(username, password, email);
         String authToken = AuthTokenGen.genAuthToken();
         return new RegisterResult(username, authToken);
     }

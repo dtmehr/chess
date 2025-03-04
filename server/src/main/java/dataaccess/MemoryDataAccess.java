@@ -26,59 +26,38 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public void createUser() {
+    public void createUser(String username, String password, String email) throws DataAccessException {
+        if (users.containsKey(username)){
+            throw new DataAccessException("username taken");
+        }
+        users.put(username, new UserData(username, password, email));
+
+    }
+
+
+    @Override
+    public String login(String username, String password) throws DataAccessException {
+        return "";
+    }
+
+    @Override
+    public void logout(String authToken) {
 
     }
 
     @Override
-    public login() throws DataAccessException{
-        try {
-            //to do
-        } catch (Exception e) {
-            throw new DataAccessException("Unable to clear data", e);
-        }
+    public int createGame(String makerToken) {
+        return 0;
+    }
+
+    @Override
+    public void joinGame(int gameID, String authToken, String teamColor) {
 
     }
-//
-//    @Override
-//    public void logout() throws DataAccessException{
-//        try {
-//            //to do
-//        } catch (Exception e) {
-//            throw new DataAccessException("Unable to clear data", e);
-//        }
-//
-//    }
-//
-//    @Override
-//    public void listGames() throws DataAccessException{
-//        try {
-//            //to do
-//        } catch (Exception e) {
-//            throw new DataAccessException("Unable to clear data", e);
-//        }
-//
-//    }
-//
-//    @Override
-//    public void createGame() throws DataAccessException{
-//        try {
-//            //to do
-//        } catch (Exception e) {
-//            throw new DataAccessException("Unable to clear data", e);
-//        }
-//
-//    }
-//
-//    @Override
-//    public void joinGame() throws DataAccessException{
-//        try {
-//            //to do
-//        } catch (Exception e) {
-//            throw new DataAccessException("Unable to clear data", e);
-//        }
-//
-//    }
 
+    @Override
+    public void listGames() {
+
+    }
 
 }
