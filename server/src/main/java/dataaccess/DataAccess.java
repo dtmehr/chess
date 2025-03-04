@@ -17,9 +17,7 @@ public interface DataAccess {
     //game
     int createGame(String makerToken, String gameID) throws DataAccessException;
     void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException;
-    void listGames();
     AuthData getAuthData(String token);
-
-    Collection<GameData> getGames();
+    Collection<GameData> getGames()throws DataAccessException;
 }
 

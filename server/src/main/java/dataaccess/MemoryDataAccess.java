@@ -81,9 +81,10 @@ public class MemoryDataAccess implements DataAccess {
         if (!authTokens.containsKey(makerToken)) {
             throw new DataAccessException("unauthorized");
         }
-        //increase id count (might want to do differently in future)
         int newGameId = gameIdCount++;
         GameData newGame = new GameData(newGameId);
+        //changes
+        newGame.setGameName(gameName);
         games.put(newGameId, newGame);
         return newGameId;
     }
@@ -120,14 +121,10 @@ public class MemoryDataAccess implements DataAccess {
         }
     }
 
-    public Collection<GameData> getGames() {
-        return games.values();
-    }
-
     //to do
     @Override
-    public void listGames() {
-
+    public Collection<GameData> getGames() {
+        return games.values();
     }
 
 

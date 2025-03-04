@@ -5,11 +5,13 @@ import java.util.Map;
 public class GameData {
     private String whiteUsername = "";
     private String blackUsername = "";
+    private String gameName = "";
 
 
     public GameData(int gameId) {
-        this.whiteUsername = "";
-        this.blackUsername = "";
+        this.whiteUsername = null;
+        this.blackUsername = null;
+        this.gameName = null;
     }
     //helpers for logic
     public String getWhiteUsername() {
@@ -28,4 +30,7 @@ public class GameData {
         this.blackUsername = blackUsername;
     }
 
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
 }
