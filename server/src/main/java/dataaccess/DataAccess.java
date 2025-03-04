@@ -20,6 +20,6 @@ public interface DataAccess {
     void listGames();
     AuthData getAuthData(String token);
 
-    Collection<GameData> getAllGames();
+    Collection<GameData> getGames();
 }
 

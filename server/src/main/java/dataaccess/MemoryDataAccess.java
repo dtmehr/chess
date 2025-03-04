@@ -1,5 +1,6 @@
 package dataaccess;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
 import service.AuthTokenGen;
@@ -13,6 +14,7 @@ public class MemoryDataAccess implements DataAccess {
     private Map<String, AuthData> authTokens = new HashMap<>();
     private Map<Integer, GameData> games = new HashMap<>();
     private int gameIdCount = 1;
+
 
     //these might be put in the wrong file tbd
     //methods
@@ -116,6 +118,10 @@ public class MemoryDataAccess implements DataAccess {
             }
             id.setBlackUsername(authData.getUsername());
         }
+    }
+
+    public Collection<GameData> getGames() {
+        return games.values();
     }
 
     //to do
