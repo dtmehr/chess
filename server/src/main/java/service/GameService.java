@@ -1,6 +1,9 @@
 package service;
 import dataaccess.DataAccessException;
 import dataaccess.DataAccess;
+import model.GameData;
+
+import java.util.Collection;
 
 
 public class GameService {
@@ -20,6 +23,10 @@ public class GameService {
 
     public void joinGame(String authToken, int gameId, String playerColor) throws DataAccessException {
         dataAccess.joinGame(gameId, authToken, playerColor);
+    }
+
+    public Collection<GameData> listGames() throws DataAccessException{
+        return dataAccess.getAllGames();
     }
 
 }

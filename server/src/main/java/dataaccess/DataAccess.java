@@ -1,6 +1,9 @@
 package dataaccess;
 
 import model.AuthData;
+import model.GameData;
+
+import java.util.Collection;
 
 //will include CRUD stuff here?
 public interface DataAccess {
@@ -16,5 +19,7 @@ public interface DataAccess {
     void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException;
     void listGames();
     AuthData getAuthData(String token);
+
+    Collection<GameData> getAllGames();
 }
 
