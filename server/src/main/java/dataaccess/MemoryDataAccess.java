@@ -2,7 +2,7 @@ package dataaccess;
 
 import java.util.Map;
 import java.util.HashMap;
-
+import service.AuthTokenGen;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -31,14 +31,24 @@ public class MemoryDataAccess implements DataAccess {
             throw new DataAccessException("username taken");
         }
         users.put(username, new UserData(username, password, email));
-
     }
 
 
     @Override
     public String login(String username, String password) throws DataAccessException {
-        return "";
+        if (username == null || password == null || username.isEmpty() || password.isEmpty()){
+            throw new DataAccessException("wrong username or password");
+        }
+        UserData user = users.get(username);
+        if (user == null || !user.password.equals(password)) {
+            throw new DataAccessException("wrong username or password");
+        }
+        String token = AuthTokenGen.genAuthToken();
+        authTokens.put(token, new AuthData(username, token));
+        return token;
     }
+
+
 
     @Override
     public void logout(String authToken) {

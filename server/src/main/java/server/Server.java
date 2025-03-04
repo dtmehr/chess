@@ -21,11 +21,18 @@ public class Server {
     public int run(int desiredPort) {
         Spark.port(desiredPort);
 
+        //help for errors
         Spark.staticFiles.location("resources/web");
+        Spark.exception(DataAccessException.class, (exception, req, res) -> {
+            res.status(403);
+            res.type("application/json");
+            res.body(new Gson().toJson(Map.of("error", exception.getMessage())));
+        });
 
         // Register your endpoints and handle exceptions here.
         delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
+        Spark.post("/session", userHandler::login);
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
