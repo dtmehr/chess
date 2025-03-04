@@ -7,7 +7,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
-public class MemoryDataAccess implements DataAccess{
+public class MemoryDataAccess implements DataAccess {
 
     private Map<String, UserData> users = new HashMap<>();
     private Map<String, AuthData> authTokens = new HashMap<>();
@@ -30,15 +30,15 @@ public class MemoryDataAccess implements DataAccess{
 
     }
 
-//    @Override
-//    public void login() throws DataAccessException{
-//        try {
-//            //to do
-//        } catch (Exception e) {
-//            throw new DataAccessException("Unable to clear data", e);
-//        }
-//
-//    }
+    @Override
+    public login() throws DataAccessException{
+        try {
+            //to do
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to clear data", e);
+        }
+
+    }
 //
 //    @Override
 //    public void logout() throws DataAccessException{
