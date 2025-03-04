@@ -17,6 +17,8 @@ public class Server {
     DataAccess dataAccess = new MemoryDataAccess();
     UserService userService = new UserService(dataAccess);
     UserHandler userHandler = new UserHandler(userService);
+    GameService gameService = new GameService(dataAccess);
+    GameHandler gameHandler = new GameHandler(gameService, userService);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -30,9 +32,17 @@ public class Server {
         });
 
         // Register your endpoints and handle exceptions here.
-        delete("/db", this::clear);
+        Spark.delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
         Spark.post("/session", userHandler::login);
+        Spark.delete("/session", userHandler::logout);
+        Spark.post("/game", gameHandler::createGame);
+        // to do
+        Spark.put("/game", gameHandler::joinGame);
+//        Spark.get("/game", gameHandler::listGames);
+
+
+
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 

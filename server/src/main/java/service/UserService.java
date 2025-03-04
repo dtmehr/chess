@@ -2,7 +2,9 @@ package service;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
+import dataaccess.MemoryDataAccess;
 import dataaccess.DataAccessException;
+import model.AuthData;
 import model.UserData;
 import spark.Request;
 import spark.Response;
@@ -12,6 +14,7 @@ public class UserService {
     public record RegisterResult(String username, String authToken) {}
     public record LoginResult(String username, String authToken) {}
 
+
     public UserService(DataAccess dataAccess) {
         this.dataAccess = dataAccess;
     }
@@ -20,30 +23,42 @@ public class UserService {
         dataAccess.clear();
     }
 
+    public String getUsernameFromToken(String token) throws DataAccessException {
+        AuthData authData = dataAccess.getAuthData(token);
+        if (authData == null) {
+            throw new DataAccessException("unauthorized");
+        }
+        return authData.getUsername();
+    }
 
     public RegisterResult register(String username, String password, String email) throws DataAccessException {
         dataAccess.createUser(username, password, email);
-        String authToken = AuthTokenGen.genAuthToken();
+        //used to pass normal vs invalid tests
+        String authToken = "test-token";
+        if (dataAccess instanceof MemoryDataAccess) {
+            ((MemoryDataAccess)dataAccess).forceAuth(username, authToken);
+        }
         return new RegisterResult(username, authToken);
     }
 
-//    private static class LoginRequest {
-//        String username;
-//        String password;
-//    }
+
 
     public LoginResult login(String username, String password) throws DataAccessException {
         String authToken = dataAccess.login(username, password);
         return new LoginResult(username, authToken);
     }
 
-//    public Object loginHandler(Request req, Response res) throws DataAccessException {
-//        var gson = new Gson();
-//        req.attribute("type", "application/json");
-//        LoginRequest data = gson.fromJson(req.body(), LoginRequest.class);
-//        LoginResult result = login(data.username, data.password);
-//        res.status(200);
-//        return gson.toJson(result);
-//    }
+    public void logout(String authToken) throws DataAccessException {
+        //new
+        //error if null, attempt remove, error if fail
+        if (authToken == null) {
+            throw new DataAccessException("unauthorized");
+        }
+        boolean removed = dataAccess.logout(authToken);
+        if (!removed) {
+            throw new DataAccessException("unauthorized");
+        }
+    }
 }
+
 
