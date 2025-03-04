@@ -2,9 +2,10 @@ package dataaccess;
 
 import java.util.Map;
 import java.util.HashMap;
-import model.UserData;
+
 import model.AuthData;
 import model.GameData;
+import model.UserData;
 
 public class MemoryDataAccess implements DataAccess{
 
@@ -22,6 +23,11 @@ public class MemoryDataAccess implements DataAccess{
         } catch (Exception e) {
             throw new DataAccessException("Unable to clear data");
         }
+    }
+
+    @Override
+    public void createUser() {
+
     }
 
 //    @Override

@@ -7,6 +7,7 @@ import dataaccess.MemoryDataAccess;
 import service.GameService;
 import service.UserService;
 import spark.*;
+import server.UserHandler;
 
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import static spark.Spark.delete;
 public class Server {
     DataAccess dataAccess = new MemoryDataAccess();
     UserService userService = new UserService(dataAccess);
+    UserHandler userHandler = new UserHandler(userService);
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -23,6 +25,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         delete("/db", this::clear);
+        Spark.post("/user", userHandler::register);
         //This line initializes the server and can be removed once you have a functioning endpoint 
         Spark.init();
 
