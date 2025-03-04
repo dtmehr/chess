@@ -21,7 +21,6 @@ public class GameHandler {
     }
 
     private static class GameRequest {
-        String username;
         String gameName;
 
     }
@@ -32,32 +31,22 @@ public class GameHandler {
         //attmept success, go through edge cases
         try {
             String authToken = request.headers("authorization");
-            if (authToken == null || authToken.isEmpty()) {
-                response.status(401);
-                return gson.toJson(Map.of("message", "Error: unauthorized"));
-            }
             GameRequest gameRequest = gson.fromJson(request.body(), GameRequest.class);
-            if (gameRequest == null || gameRequest.gameName == null || gameRequest.gameName.isEmpty()) {
-                response.status(400);
-                return gson.toJson(Map.of("message", "Error: bad request"));
-            }
-            String tokenUsername = userService.getUsernameFromToken(authToken);
-            String requestUsername = gameRequest.username;
-            if (requestUsername == null || requestUsername.isEmpty()) {
-                requestUsername = tokenUsername;
-            } else if (!tokenUsername.equals(requestUsername)) {
-                response.status(401);
-                return gson.toJson(Map.of("message", "Error: auth token does not match username"));
-            }
             int gameID = gameService.createGame(authToken, gameRequest.gameName);
             response.status(200);
             return gson.toJson(Map.of("gameID", gameID));
-          //different catch all errors
+
+            //different catch all errors
         } catch (DataAccessException e) {
             response.status(401);
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         } catch (Exception e) {
-            response.status(500);
+            GameRequest gameRequest = gson.fromJson(request.body(), GameRequest.class);
+            if (gameRequest == null){
+                response.status(400);
+            } else{
+                response.status(500);
+            }
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
@@ -80,7 +69,7 @@ public class GameHandler {
             gameService.joinGame(authToken, data.gameID, data.playerColor);
             response.status(200);
             return "{}";
-        //check msg and match with code for error
+        //check msg and match with code for error. switch cases worked better
         } catch (DataAccessException e) {
             String msg = e.getMessage();
             switch (msg) {
@@ -96,6 +85,35 @@ public class GameHandler {
     private static class JoinGameRequest {
         String playerColor;
         int gameID;
+    }
+
+    public Object listGames(Request request, Response response) {
+        response.type("application/json");
+        Gson gson = new Gson();
+        try {
+            //try success, fail is
+            String authToken = request.headers("authorization");
+            if (authToken == null || authToken.isEmpty()) {
+                response.status(401);
+                return gson.toJson(Map.of("message", "Error: unauthorized"));
+            }
+            userService.getUsernameFromToken(authToken);
+            var gamesList = gameService.listGames();
+            //success
+            response.status(200);
+            return gson.toJson(Map.of("games", gamesList));
+            //errors
+        } catch (DataAccessException e) {
+            switch (e.getMessage()) {
+                case "unauthorized":
+                    response.status(401);
+                    break;
+                default:
+                    response.status(500);
+                    break;
+            }
+            return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
+        }
     }
 
 }

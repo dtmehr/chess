@@ -39,7 +39,7 @@ public class Server {
         Spark.post("/game", gameHandler::createGame);
         // to do
         Spark.put("/game", gameHandler::joinGame);
-//        Spark.get("/game", gameHandler::listGames);
+        Spark.get("/game", gameHandler::listGames);
 
 
 
