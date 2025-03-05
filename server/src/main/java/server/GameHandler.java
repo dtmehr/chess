@@ -2,6 +2,7 @@ package server;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import model.GameData;
 import spark.Request;
 import spark.Response;
 import service.GameService;
@@ -9,6 +10,7 @@ import service.UserService;
 
 import dataaccess.DataAccess;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class GameHandler {
@@ -91,18 +93,18 @@ public class GameHandler {
         response.type("application/json");
         Gson gson = new Gson();
         try {
-            //try success, fail is
             String authToken = request.headers("authorization");
             if (authToken == null || authToken.isEmpty()) {
                 response.status(401);
                 return gson.toJson(Map.of("message", "Error: unauthorized"));
             }
             userService.getUsernameFromToken(authToken);
+
             var gamesList = gameService.listGames();
-            //success
+
             response.status(200);
             return gson.toJson(Map.of("games", gamesList));
-            //errors
+
         } catch (DataAccessException e) {
             switch (e.getMessage()) {
                 case "unauthorized":
@@ -115,5 +117,6 @@ public class GameHandler {
             return gson.toJson(Map.of("message", "Error: " + e.getMessage()));
         }
     }
+
 
 }

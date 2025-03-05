@@ -26,7 +26,7 @@ public class GameService {
     }
 
     public Collection<GameData> listGames() throws DataAccessException{
-        return dataAccess.getGames();
+        return dataAccess.listGames();
     }
 
 }

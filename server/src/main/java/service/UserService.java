@@ -1,13 +1,11 @@
 package service;
 
-import com.google.gson.Gson;
+
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
-import model.UserData;
-import spark.Request;
-import spark.Response;
+
 
 public class UserService {
     private final DataAccess dataAccess;
@@ -34,7 +32,7 @@ public class UserService {
     public RegisterResult register(String username, String password, String email) throws DataAccessException {
         dataAccess.createUser(username, password, email);
         //used to pass normal vs invalid tests
-        String authToken = "test-token";
+        String authToken = AuthTokenGen.genAuthToken();
         if (dataAccess instanceof MemoryDataAccess) {
             ((MemoryDataAccess)dataAccess).forceAuth(username, authToken);
         }

@@ -123,7 +123,7 @@ public class MemoryDataAccess implements DataAccess {
 
     //to do
     @Override
-    public Collection<GameData> getGames() {
+    public Collection<GameData> listGames() {
         return games.values();
     }
 

@@ -18,6 +18,6 @@ public interface DataAccess {
     int createGame(String makerToken, String gameID) throws DataAccessException;
     void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException;
     AuthData getAuthData(String token);
-    Collection<GameData> getGames()throws DataAccessException;
+    Collection<GameData> listGames()throws DataAccessException;
 }
 
