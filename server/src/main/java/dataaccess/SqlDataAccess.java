@@ -4,8 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import model.AuthData;
 import model.GameData;
-import passoff.exception.ResponseParseException;
-import spark.Response;
+import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -19,32 +19,71 @@ public class SqlDataAccess implements DataAccess{
     }
 
     private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS user(
-            username VARCHAR(255) NOT NULL,
-            password VARCHAR(255) NOT NULL,
-            PRIMARY KEY (username)
-            )
-            """,
 
             """
-            CREATE TABLE IF NOT EXISTS `auth` (
-              token    VARCHAR(255) NOT NULL,
-              username VARCHAR(255) NOT NULL,
-              PRIMARY KEY (token),
-              FOREIGN KEY (username) REFERENCES `user` (username)
-                ON DELETE CASCADE
-                ON UPDATE CASCADE
-            """,
+    CREATE TABLE IF NOT EXISTS user(
+      username VARCHAR(255) NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      email VARCHAR(255),
+      PRIMARY KEY (username)
+    )
+    """,
+
 
             """
-            CREATE TABLE IF NOT EXISTS `game` (
-              game_id   INT NOT NULL AUTO_INCREMENT,
-              game_json TEXT NOT NULL,
-              PRIMARY KEY (game_id)
-            """
+    CREATE TABLE IF NOT EXISTS auth(
+      token VARCHAR(255) NOT NULL,
+      username VARCHAR(255) NOT NULL,
+      PRIMARY KEY (token),
+      FOREIGN KEY (username) REFERENCES user (username)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+    )
+    """,
 
+            """
+    CREATE TABLE IF NOT EXISTS game(
+      game_id INT NOT NULL AUTO_INCREMENT,
+      game_json TEXT NOT NULL,
+      PRIMARY KEY (game_id)
+    )
+    """
     };
+
+
+    void storeUserPassword(String username, String clearTextPassword) {
+        String hashedPassword = BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+
+        // write the hashed password in database along with the user's other information
+        writeHashedPasswordToDatabase(username, hashedPassword);
+    }
+
+    private void writeHashedPasswordToDatabase(String username, String hashedPassword) {
+    }
+
+    boolean verifyUser(String username, String providedClearTextPassword) throws DataAccessException {
+        // read the previously hashed password from the database
+        var hashedPassword = readHashedPasswordFromDatabase(username);
+
+        return BCrypt.checkpw(providedClearTextPassword, hashedPassword);
+    }
+//not sure about thsi one yet
+    private String readHashedPasswordFromDatabase(String username) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String sql = "SELECT password FROM user WHERE username = ?";
+            try (var ps = conn.prepareStatement(sql)) {
+                ps.setString(1, username);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("password");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error reading hashed password: " + e.getMessage());
+        }
+        return null;
+    }
 
     private void configureDatabase() throws DataAccessException{
         DatabaseManager.createDatabase();
@@ -73,22 +112,62 @@ public class SqlDataAccess implements DataAccess{
             }
 
         } catch (SQLException exception){
-            throw new DataAccessException("clear () failed" + exception.getMessage());
+            throw new DataAccessException("clear() fail" + exception.getMessage());
         }
     }
 
     @Override
     public void createUser(String username, String password, String email) throws DataAccessException {
+        // check if username is taken
+        try (var connection = DatabaseManager.getConnection()) {
+            String checkSql = "SELECT username FROM user WHERE username = ?";
+            try (var psCheck = connection.prepareStatement(checkSql)) {
+                psCheck.setString(1, username);
+                try (var rs = psCheck.executeQuery()) {
+                    if (rs.next()) {
+                        throw new DataAccessException("Username is already taken");
+                    }
+                }
+            }
+        // hash password
+            String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
+            // insert the new user
+            String insertSql = "INSERT INTO user (username, password, email) VALUES (?,?,?)";
+            try (var psInsert = connection.prepareStatement(insertSql)) {
+                psInsert.setString(1, username);
+                psInsert.setString(2, hashedPassword);
+                psInsert.setString(3, email);
+                psInsert.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("createUser() failed: " + e.getMessage());
+        }
     }
 
     @Override
     public String login(String username, String password) throws DataAccessException {
-        return "";
+        //check username and password in table
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT username, password, email FROM user WHERE username=?")) {
+                statement.setString(1, username);
+                try (var results = statement.executeQuery()) {
+                    results.next();
+                    password = results.getString("password");
+                    var email = results.getString("email");
+                    return (username);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("User not found: " + username);
+        }
     }
 
     @Override
     public boolean logout(String authToken) {
+        //check user and authtoken
+        //remove authToken if user and authtoken match
+        //catch any problems
         return false;
     }
 
@@ -111,4 +190,9 @@ public class SqlDataAccess implements DataAccess{
     public Collection<GameData> listGames() throws DataAccessException {
         return List.of();
     }
-}
+        //create authtoken
+        //insert authtoken
+        //catch any problems
+    }
+
+
