@@ -9,13 +9,35 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SqlDataAccess implements DataAccess{
+    private Map<String, AuthData> authTokens = new HashMap<>();
     private final Gson gson = new GsonBuilder().create();
 
     public SqlDataAccess() throws DataAccessException {
         configureDatabase();
+    }
+
+    //used for register on UserService
+    //changed functionality from MemoryDataAccess to actually work for sql stuff
+    public void forceAuth(String username, String token) throws DataAccessException {
+        try (var conn = DatabaseManager.getConnection()) {
+            String sql = """
+            INSERT INTO auth (token, username)
+            VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE username=VALUES(username)
+        """;
+            try (var ps = conn.prepareStatement(sql)) {
+                ps.setString(1, token);
+                ps.setString(2, username);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("forceAuth() error: " + e.getMessage());
+        }
     }
 
     private final String[] createStatements = {
@@ -147,39 +169,56 @@ public class SqlDataAccess implements DataAccess{
 
     @Override
     public String login(String username, String password) throws DataAccessException {
-        //check username and password in table
-        //possible error handling (did this in the other file)
+        // used this in og file
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
             throw new DataAccessException("Wrong username or password");
         }
         try (var conn = DatabaseManager.getConnection()) {
-            try (var statement = conn.prepareStatement("SELECT username, password, email FROM user WHERE username=?")) {
-                statement.setString(1, username);
-                try (var results = statement.executeQuery()) {
-                    results.next();
-                    password = results.getString("password");
-                    var email = results.getString("email");
-                    return (username);
+            String sql = "SELECT password, email FROM user WHERE username = ?";
+            try (var ps = conn.prepareStatement(sql)) {
+                ps.setString(1, username);
+
+                try (var rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new DataAccessException("Wrong username or password");
+                    }
+                    String hashedPassword = rs.getString("password");
+
+                    if (!org.mindrot.jbcrypt.BCrypt.checkpw(password, hashedPassword)) {
+                        throw new DataAccessException("Wrong username or password");
+                    }
                 }
             }
-        } catch (SQLException exception) {
-            throw new DataAccessException("User not found: " + exception.getMessage());
+
+            String token = service.AuthTokenGen.genAuthToken();
+            String insertAuthSQL = "INSERT INTO auth (token, username) VALUES (?, ?)";
+
+            try (var psInsert = conn.prepareStatement(insertAuthSQL)) {
+                psInsert.setString(1, token);
+                psInsert.setString(2, username);
+                psInsert.executeUpdate();
+            }
+            return token;
+        } catch (SQLException e) {
+            throw new DataAccessException("Login failed: " + e.getMessage());
         }
     }
 
+
     @Override
     public boolean logout(String authToken) throws DataAccessException {
-        //check user and authtoken
-        //remove authToken if user and authtoken match
         try (var connection = DatabaseManager.getConnection()) {
             String sql = "DELETE FROM auth WHERE token = ?";
             try (var ps = connection.prepareStatement(sql)) {
                 ps.setString(1, authToken);
                 int rowsAffected = ps.executeUpdate();
-                return (rowsAffected > 0);
+                if (rowsAffected == 0) {
+                    throw new DataAccessException("Token not found. Logout failed.");
+                }
+                return true;
             }
-        } catch (DataAccessException | SQLException exception) {
-            throw new DataAccessException("bad" + exception.getMessage());
+        } catch (SQLException exception) {
+            throw new DataAccessException("logout() error: " + exception.getMessage());
         }
     }
 

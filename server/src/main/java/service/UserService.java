@@ -4,6 +4,7 @@ package service;
 import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.SqlDataAccess;
 import model.AuthData;
 
 
@@ -35,6 +36,8 @@ public class UserService {
         String authToken = AuthTokenGen.genAuthToken();
         if (dataAccess instanceof MemoryDataAccess) {
             ((MemoryDataAccess)dataAccess).forceAuth(username, authToken);
+        } else if (dataAccess instanceof SqlDataAccess) {
+            ((SqlDataAccess)dataAccess).forceAuth(username, authToken);
         }
         return new RegisterResult(username, authToken);
     }
