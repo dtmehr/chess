@@ -8,13 +8,10 @@ import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Statement;
+import java.util.*;
 
 public class SqlDataAccess implements DataAccess{
-    private Map<String, AuthData> authTokens = new HashMap<>();
     private final Gson gson = new GsonBuilder().create();
 
     public SqlDataAccess() throws DataAccessException {
@@ -223,9 +220,41 @@ public class SqlDataAccess implements DataAccess{
     }
 
     @Override
-    public int createGame(String makerToken, String gameID) throws DataAccessException {
-        return 0;
+    public int createGame(String makerToken, String gameName) throws DataAccessException {
+        AuthData authData = getAuthData(makerToken);
+        if (authData == null) {
+            throw new DataAccessException("unauthorized");
+        }
+        GameData newGame = new GameData(0);
+        newGame.setGameName(gameName);
+        try (var conn = DatabaseManager.getConnection()) {
+            String insertSql = "INSERT INTO game (game_json) VALUES (?)";
+            try (var ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
+                ps.setString(1, gson.toJson(newGame));
+                ps.executeUpdate();
+                try (var rs = ps.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        throw new DataAccessException("No generated game_id");
+                    }
+                    int newlyGeneratedID = rs.getInt(1);
+
+                    newGame.setGameId(newlyGeneratedID);
+                    String updatedJson = gson.toJson(newGame);
+
+                    String updateSql = "UPDATE game SET game_json=? WHERE game_id=?";
+                    try (var ps2 = conn.prepareStatement(updateSql)) {
+                        ps2.setString(1, updatedJson);
+                        ps2.setInt(2, newlyGeneratedID);
+                        ps2.executeUpdate();
+                    }
+                    return newlyGeneratedID;
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("createGame() error: " + e.getMessage());
+        }
     }
+
 
     @Override
     public void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException {
@@ -233,17 +262,44 @@ public class SqlDataAccess implements DataAccess{
     }
 
     @Override
-    public AuthData getAuthData(String token) {
+    public AuthData getAuthData(String token) throws DataAccessException {
+        try (var connection = DatabaseManager.getConnection()) {
+            String sql = "SELECT username FROM auth WHERE token = ?";
+            try (var statement = connection.prepareStatement(sql)) {
+                statement.setString(1, token);
+                try (var results = statement.executeQuery()) {
+                    if (results.next()) {
+                        String username = results.getString("username");
+                        return new AuthData(username, token);
+                    }
+                }
+            }
+        } catch (SQLException | DataAccessException exception) {
+            throw new DataAccessException("wrong" + exception.getMessage());
+        }
         return null;
     }
 
+
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
-        return List.of();
+        List<GameData> allGames = new ArrayList<>();
+        String sql = "SELECT game_json FROM game";
+        try (var connection = DatabaseManager.getConnection();
+             var statement = connection.prepareStatement(sql);
+             var result = statement.executeQuery()) {
+
+            while (result.next()) {
+                String gameJson = result.getString("game_json");
+                GameData gameData = gson.fromJson(gameJson, GameData.class);
+                allGames.add(gameData);
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("listGames() failed: " + e.getMessage());
+        }
+        return allGames;
     }
-        //create authtoken
-        //insert authtoken
-        //catch any problems
-    }
+
+}
 
 

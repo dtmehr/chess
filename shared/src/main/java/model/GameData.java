@@ -37,4 +37,7 @@ public class GameData {
     public void setGameName(String gameName) {
         this.gameName = gameName;
     }
+
+    public void setGameId(int gameID) {
+    }
 }
