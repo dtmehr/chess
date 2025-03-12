@@ -72,10 +72,6 @@ public class ChessGame {
 
         //all moves before doing filtering
         Collection<ChessMove> unfilteredMoves = piece.pieceMoves(board, startPosition);
-//        if(piece.getTeamColor() != teamTurn){
-//            return unfilteredMoves;
-//        }
-        //now filter all moves
         Collection<ChessMove> moves = new HashSet<>();
 
 
@@ -215,7 +211,6 @@ public class ChessGame {
                 }
             }
         }
-        //if no move ends where king is, king is not in check
         return false;
     }
 
