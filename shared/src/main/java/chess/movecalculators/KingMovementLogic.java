@@ -1,4 +1,4 @@
-package chess.MoveCalculators;
+package chess.movecalculators;
 
 import chess.ChessBoard;
 import chess.ChessMove;
@@ -6,7 +6,7 @@ import chess.ChessPosition;
 
 import java.util.HashSet;
 
-import static chess.MoveCalculators.MoveCalculator.calculateMoves;
+import static chess.movecalculators.MoveCalculator.calculateMoves;
 
 public class KingMovementLogic {
     public static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position){

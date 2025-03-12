@@ -258,6 +258,17 @@ public class SqlDataAccess implements DataAccess{
 
     @Override
     public void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException {
+        //check authToken in db
+        AuthData authData = getAuthData(authToken);
+        if (authData == null) {
+            throw new DataAccessException("unauthorized");
+        }
+        // get the game
+        String selectSql = "SELECT game_json FROM game WHERE game_id = ?";
+        try (var connection = DatabaseManager.getConnection();
+             var statement = connection.prepareStatement(selectSql)){
+
+        }
 
     }
 

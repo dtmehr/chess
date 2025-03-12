@@ -1,10 +1,10 @@
-package chess.MoveCalculators;
+package chess.movecalculators;
 
 import java.util.HashSet;
 
 import chess.*;
 
-import static chess.MoveCalculators.MoveCalculator.calculateMoves;
+import static chess.movecalculators.MoveCalculator.calculateMoves;
 
 
 public class BishopMovementLogic {

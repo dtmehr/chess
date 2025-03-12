@@ -3,7 +3,6 @@ package service;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void registerTest_Valid() throws DataAccessException {
+    public void registerTestValid() throws DataAccessException {
         var result = userService.register("jakeman32", "password123", "jack@email.com");
 
         Assertions.assertEquals("jakeman32", result.username());
@@ -36,7 +35,7 @@ public class ServiceTests {
 
     }
     @Test
-    public void registerTest_Invalid() throws DataAccessException {
+    public void registerTestInvalid() throws DataAccessException {
         var registered = userService.register("", "", "");
         Assertions.assertEquals("", registered.username());
         Assertions.assertNotNull(registered.authToken(), "username is empty, but auth shouldnt be null");
@@ -44,7 +43,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void loginTest_Valid()throws DataAccessException {
+    public void loginTestValid()throws DataAccessException {
         //fake user to test
         userService.register("Jimmer", "32", "Jimmer@mail.com");
         var result = userService.login("Jimmer", "32");
@@ -55,7 +54,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void loginTest_Invalid()throws DataAccessException{
+    public void loginTestInvalid()throws DataAccessException{
         userService.register("Jimmer", "32", "Jimmer@mail.com");
         var result = userService.login("Jimmer", "32");
 
@@ -65,7 +64,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void logoutTest_Valid() throws DataAccessException{
+    public void logoutTestValid() throws DataAccessException{
        var registered = userService.register("Jimmer", "32", "Jimmer@mail.com");
         userService.logout(registered.authToken());
 
@@ -75,7 +74,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void logoutTest_Invalid(){
+    public void logoutTestInvalid(){
         Assertions.assertThrows(DataAccessException.class, () -> {
             userService.logout("not real token");
         });
@@ -83,7 +82,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void createTest_Valid() throws DataAccessException{
+    public void createTestValid() throws DataAccessException{
         var registered = userService.register("Jimmer", "32", "Jimmer@mail.com");
         int gameID = gameService.createGame(registered.authToken(), "0032");
 
@@ -92,7 +91,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void createTest_Invalid(){
+    public void createTestInvalid(){
         Assertions.assertThrows(DataAccessException.class, () -> {
             gameService.createGame("this is not a real token", "034");
         });
@@ -100,7 +99,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void joinTest_Valid() throws DataAccessException{
+    public void joinTestValid() throws DataAccessException{
         var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
         var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
 
@@ -110,7 +109,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void joinTest_Invalid() throws DataAccessException{
+    public void joinTestInvalid() throws DataAccessException{
         var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
 
         Assertions.assertThrows(DataAccessException.class, () -> {
@@ -119,7 +118,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void listTest_Valid() throws DataAccessException{
+    public void listTestValid() throws DataAccessException{
         var jimmer = userService.register("Jimmer", "32", "jimmer@mail.com");
 
         gameService.createGame(jimmer.authToken(), "Game One");
@@ -131,7 +130,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void listTest_Invalid(){
+    public void listTestInvalid(){
         //call real data
         Collection<GameData> games = null;
         try {//there might not be any lists
@@ -144,7 +143,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void clearTest_Valid() throws DataAccessException{
+    public void clearTestValid() throws DataAccessException{
         userService.register("Jimmer", "32", "jimmer@mail.com");
         userService.clear();
 
@@ -155,7 +154,7 @@ public class ServiceTests {
     }
 
     @Test
-    public void clearTest_Invalid() throws DataAccessException{
+    public void clearTestInvalid() throws DataAccessException{
         userService.clear();
     }
 
