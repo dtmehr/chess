@@ -158,17 +158,25 @@ public class SqlDataAccess implements DataAccess{
                     return (username);
                 }
             }
-        } catch (SQLException e) {
-            throw new DataAccessException("User not found: " + username);
+        } catch (SQLException exception) {
+            throw new DataAccessException("User not found: " + exception.getMessage());
         }
     }
 
     @Override
-    public boolean logout(String authToken) {
+    public boolean logout(String authToken) throws DataAccessException {
         //check user and authtoken
         //remove authToken if user and authtoken match
-        //catch any problems
-        return false;
+        try (var connection = DatabaseManager.getConnection()) {
+            String sql = "DELETE FROM auth WHERE token = ?";
+            try (var ps = connection.prepareStatement(sql)) {
+                ps.setString(1, authToken);
+                int rowsAffected = ps.executeUpdate();
+                return (rowsAffected > 0);
+            }
+        } catch (DataAccessException | SQLException exception) {
+            throw new DataAccessException("bad" + exception.getMessage());
+        }
     }
 
     @Override
