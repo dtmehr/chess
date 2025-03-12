@@ -148,6 +148,10 @@ public class SqlDataAccess implements DataAccess{
     @Override
     public String login(String username, String password) throws DataAccessException {
         //check username and password in table
+        //possible error handling (did this in the other file)
+        if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
+            throw new DataAccessException("Wrong username or password");
+        }
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("SELECT username, password, email FROM user WHERE username=?")) {
                 statement.setString(1, username);
