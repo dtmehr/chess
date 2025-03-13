@@ -123,27 +123,27 @@ public class SqlDataAccess implements DataAccess{
                 check.setString(1, username);
                 try (var results = check.executeQuery()) {
                     if (results.next()) {
-                        throw new DataAccessException("Username is already taken");
+                        // Changed the error message to exactly "username taken"
+                        throw new DataAccessException("username taken");
                     }
                 }
             }
             // else hash password
             String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-            // and insert the new user with givn values
+            // and insert the new user with given values
             String insertSql = "INSERT INTO user (username, password, email) VALUES (?,?,?)";
             try (var psInsert = connection.prepareStatement(insertSql)) {
-                //inserts user, hashpass, email
                 psInsert.setString(1, username);
                 psInsert.setString(2, hashedPassword);
                 psInsert.setString(3, email);
                 psInsert.executeUpdate();
             }
-            //catch problems
         } catch (SQLException e) {
             throw new DataAccessException("createUser() failed: " + e.getMessage());
         }
     }
+
 
     @Override
     public String login(String username, String password) throws DataAccessException {
@@ -234,7 +234,6 @@ public class SqlDataAccess implements DataAccess{
                 }
                 generatedId = resultSet.getInt(1);
             }
-
             newGame.setGameID(generatedId);
             String updatedJson = gson.toJson(newGame);
             String updateSql = "UPDATE game SET game_json = ? WHERE game_id = ?";
@@ -250,17 +249,19 @@ public class SqlDataAccess implements DataAccess{
     }
 
 
-
-
+//huge changes to fix
     @Override
     public void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException {
-        //follow memory better
-        // check null
+        // check auth
         AuthData authData = getAuthData(authToken);
         if (authData == null) {
             throw new DataAccessException("unauthorized");
         }
-        //select
+        // check team color
+        if (!("WHITE".equals(teamColor) || "BLACK".equals(teamColor))) {
+            throw new DataAccessException("bad request");
+        }
+        // grab the game
         try (var conn = DatabaseManager.getConnection()) {
             String selectSql = "SELECT game_json FROM game WHERE game_id = ?";
             try (var select = conn.prepareStatement(selectSql)) {
@@ -271,7 +272,7 @@ public class SqlDataAccess implements DataAccess{
                     }
                     String gameJson = results.getString("game_json");
                     GameData gameData = gson.fromJson(gameJson, GameData.class);
-                    //white taken
+                    //assign colors
                     if ("WHITE".equals(teamColor)) {
                         if (gameData.getWhiteUsername() != null && !gameData.getWhiteUsername().isEmpty()) {
                             throw new DataAccessException("already taken");
@@ -291,11 +292,11 @@ public class SqlDataAccess implements DataAccess{
                     }
                 }
             }
-
         } catch (SQLException e) {
             throw new DataAccessException("joinGame() error" + e.getMessage());
         }
     }
+
 
 
     //same patter as before btu for sql
