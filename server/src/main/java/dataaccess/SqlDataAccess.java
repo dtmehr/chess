@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import model.AuthData;
 import model.GameData;
 import org.mindrot.jbcrypt.BCrypt;
-
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.*;
 
 public class SqlDataAccess implements DataAccess{
@@ -20,16 +18,16 @@ public class SqlDataAccess implements DataAccess{
     //used for register on UserService
     //changed functionality from MemoryDataAccess to actually work for sql stuff
     public void forceAuth(String username, String token) throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()) {
+        try (var connection = DatabaseManager.getConnection()) {
             String sql = """
             INSERT INTO auth (token, username)
             VALUES (?, ?)
             ON DUPLICATE KEY UPDATE username=VALUES(username)
         """;
-            try (var ps = conn.prepareStatement(sql)) {
-                ps.setString(1, token);
-                ps.setString(2, username);
-                ps.executeUpdate();
+            try (var statement = connection.prepareStatement(sql)) {
+                statement.setString(1, token);
+                statement.setString(2, username);
+                statement.executeUpdate();
             }
         } catch (SQLException e) {
             throw new DataAccessException("forceAuth() error: " + e.getMessage());
@@ -72,9 +70,9 @@ public class SqlDataAccess implements DataAccess{
 
     private void configureDatabase() throws DataAccessException{
         DatabaseManager.createDatabase();
-        try (var conn = DatabaseManager.getConnection()){
+        try (var connection = DatabaseManager.getConnection()){
             for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
+                try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
                 }
             }
@@ -89,26 +87,32 @@ public class SqlDataAccess implements DataAccess{
     //lots of try catch in each, depending on the function
     //
 
+ //major changes
     @Override
     public void clear() throws DataAccessException {
-        try (var conn = DatabaseManager.getConnection()){
-            //each of the tables
-            //user
-            try (var ps = conn.prepareStatement("DELETE FROM user")) {
-                ps.executeUpdate();
+        try (var connection = DatabaseManager.getConnection()) {
+            try (var statement = connection.createStatement()) {
+                statement.execute("SET FOREIGN_KEY_CHECKS = 0");
             }
-            //auth
-            try (var ps = conn.prepareStatement("DELETE FROM auth")) {
-                ps.executeUpdate();
+            String tables = "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE()";
+            try (var statementTables = connection.createStatement();
+                 var resultTables = statementTables.executeQuery(tables)) {
+                while (resultTables.next()) {
+                    String tableName = resultTables.getString(1);
+                    String truncateSql = "TRUNCATE TABLE " + tableName;
+                    try (var stmtTruncate = connection.createStatement()) {
+                        stmtTruncate.execute(truncateSql);
+                    }
+                }
             }
-            //game
-            try (var ps = conn.prepareStatement("DELETE FROM game")) {
-                ps.executeUpdate();
+            try (var statement = connection.createStatement()) {
+                statement.execute("SET FOREIGN_KEY_CHECKS = 1");
             }
-        } catch (SQLException exception){
-            throw new DataAccessException("clear() fail" + exception.getMessage());
+        } catch (SQLException exception) {
+            throw new DataAccessException("clear() fail: " + exception.getMessage());
         }
     }
+
 
     @Override
     public void createUser(String username, String password, String email) throws DataAccessException {
@@ -129,6 +133,7 @@ public class SqlDataAccess implements DataAccess{
             // and insert the new user with givn values
             String insertSql = "INSERT INTO user (username, password, email) VALUES (?,?,?)";
             try (var psInsert = connection.prepareStatement(insertSql)) {
+                //inserts user, hashpass, email
                 psInsert.setString(1, username);
                 psInsert.setString(2, hashedPassword);
                 psInsert.setString(3, email);
@@ -142,17 +147,17 @@ public class SqlDataAccess implements DataAccess{
 
     @Override
     public String login(String username, String password) throws DataAccessException {
-        // used this in og file. checks for random edge cases
+        // used this in other file. checks for random edge cases
         if (username == null || password == null || username.isEmpty() || password.isEmpty()) {
             throw new DataAccessException("Wrong username or password");
         }
         //connect and check if username exists
-        try (var conn = DatabaseManager.getConnection()) {
+        try (var connection = DatabaseManager.getConnection()) {
             String sql = "SELECT password, email FROM user WHERE username = ?";
-            try (var ps = conn.prepareStatement(sql)) {
-                ps.setString(1, username);
+            try (var statement = connection.prepareStatement(sql)) {
+                statement.setString(1, username);
 
-                try (var results = ps.executeQuery()) {
+                try (var results = statement.executeQuery()) {
                     if (!results.next()) {
                         throw new DataAccessException("Wrong username or password");
                     }
@@ -168,15 +173,15 @@ public class SqlDataAccess implements DataAccess{
 
             String token = service.AuthTokenGen.genAuthToken();
             String insertAuthSQL = "INSERT INTO auth (token, username) VALUES (?, ?)";
-
-            try (var psInsert = conn.prepareStatement(insertAuthSQL)) {
-                psInsert.setString(1, token);
-                psInsert.setString(2, username);
-                psInsert.executeUpdate();
+            try (var insert = connection.prepareStatement(insertAuthSQL)) {
+                //token and username
+                insert.setString(1, token);
+                insert.setString(2, username);
+                insert.executeUpdate();
             }
             return token;
-        } catch (SQLException e) {
-            throw new DataAccessException("login fail" + e.getMessage());
+        } catch (SQLException exception) {
+            throw new DataAccessException("login fail" + exception.getMessage());
         }
     }
 
@@ -200,56 +205,62 @@ public class SqlDataAccess implements DataAccess{
             throw new DataAccessException("error with logout()" + exception.getMessage());
         }
     }
-
+    //major rework changes
     @Override
     public int createGame(String makerToken, String gameName) throws DataAccessException {
+        //check not null
         AuthData authData = getAuthData(makerToken);
-        //check that not null
         if (authData == null) {
             throw new DataAccessException("currently null");
         }
-        //new id, name
+        // temp id
         GameData newGame = new GameData(0);
         newGame.setGameName(gameName);
-        //connect insert vals
+//insert empty
         try (var connection = DatabaseManager.getConnection()) {
             String insertSql = "INSERT INTO game (game_json) VALUES (?)";
-            try (var statement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
-                //to json
+            try (var statement = connection.prepareStatement(insertSql)) {
+                //basically insert
                 statement.setString(1, gson.toJson(newGame));
                 statement.executeUpdate();
-                try (var results = statement.getGeneratedKeys()) {
-                    if (!results.next()) {
-                        throw new DataAccessException("No generated game_id");
-                    }
-                    int newlyGeneratedID = results.getInt(1);
-
-                    newGame.setGameId(newlyGeneratedID);
-                    String updatedJson = gson.toJson(newGame);
-
-                    String updateSql = "UPDATE game SET game_json=? WHERE game_id=?";
-                    try (var ps2 = connection.prepareStatement(updateSql)) {
-                        ps2.setString(1, updatedJson);
-                        ps2.setInt(2, newlyGeneratedID);
-                        ps2.executeUpdate();
-                    }
-                    return newlyGeneratedID;
-                }
             }
-        } catch (SQLException e) {
-            throw new DataAccessException("error with createGame()" + e.getMessage());
+            //last inserted
+            String selectSql = "SELECT LAST_INSERT_ID()";
+            int generatedId;
+            try (var selectStmt = connection.prepareStatement(selectSql);
+                 var resultSet = selectStmt.executeQuery()) {
+                if (!resultSet.next()) {
+                    throw new DataAccessException("fail get gameid");
+                }
+                generatedId = resultSet.getInt(1);
+            }
+
+            newGame.setGameID(generatedId);
+            String updatedJson = gson.toJson(newGame);
+            String updateSql = "UPDATE game SET game_json = ? WHERE game_id = ?";
+            try (var statement = connection.prepareStatement(updateSql)) {
+                statement.setString(1, updatedJson);
+                statement.setInt(2, generatedId);
+                statement.executeUpdate();
+            }
+            return generatedId;
+        } catch (SQLException exception) {
+            throw new DataAccessException("createGame() error" + exception.getMessage());
         }
     }
+
+
 
 
     @Override
     public void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException {
         //follow memory better
+        // check null
         AuthData authData = getAuthData(authToken);
         if (authData == null) {
             throw new DataAccessException("unauthorized");
         }
-
+        //select
         try (var conn = DatabaseManager.getConnection()) {
             String selectSql = "SELECT game_json FROM game WHERE game_id = ?";
             try (var select = conn.prepareStatement(selectSql)) {
@@ -282,12 +293,12 @@ public class SqlDataAccess implements DataAccess{
             }
 
         } catch (SQLException e) {
-            throw new DataAccessException("joinGame() error: " + e.getMessage());
+            throw new DataAccessException("joinGame() error" + e.getMessage());
         }
     }
 
 
-
+    //same patter as before btu for sql
     @Override
     public AuthData getAuthData(String token) throws DataAccessException {
         try (var connection = DatabaseManager.getConnection()) {
@@ -307,22 +318,21 @@ public class SqlDataAccess implements DataAccess{
         return null;
     }
 
-
+//list games but for sql
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
         List<GameData> allGames = new ArrayList<>();
         String sql = "SELECT game_json FROM game";
-        //create variabels for query
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(sql);
              var result = statement.executeQuery()) {
-        //go through result in query
-            // add to list to be returned at end
+
             while (result.next()) {
                 String gameJson = result.getString("game_json");
                 GameData gameData = gson.fromJson(gameJson, GameData.class);
                 allGames.add(gameData);
             }
+
         } catch (SQLException e) {
             throw new DataAccessException("listGames() fail" + e.getMessage());
         }
