@@ -23,7 +23,7 @@ public class ServiceTests extends GameTests {
     }
 
     @Override
-    protected DataAccess createDataAccess() throws DataAccessException {
+    protected DataAccess createDataAccess() {
         return null;
     }
 
