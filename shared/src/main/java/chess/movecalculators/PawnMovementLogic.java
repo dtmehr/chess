@@ -26,6 +26,10 @@ public class PawnMovementLogic {
         //starting position
         int row = position.getRow();
         int col = position.getColumn();
+
+        //left and righth diags
+        int leftCol = col - 1;
+        int rightCol = col + 1;
         ChessGame.TeamColor color = piece.getTeamColor();
         //based on color
         //movement
@@ -40,6 +44,16 @@ public class PawnMovementLogic {
 
         if (MoveCalculator.isInBounds(forwardRow, col) && board.getPiece(forwardPos) == null) {
             addMoveOrPromotion(totalMoves, position, forwardPos, promotionRow);
+        }
+        //move double on first turn
+        //start at 2 for pawn or 7 for black
+        //use startRow
+        if (row == startRow) {
+            int doubleMoveRow = row + 2 * direction;
+            ChessPosition doubleMovePos = new ChessPosition(doubleMoveRow, col);
+            if (MoveCalculator.isInBounds(doubleMoveRow, col) && board.getPiece(doubleMovePos) == null && board.getPiece(forwardPos) == null ) {
+                totalMoves.add(new ChessMove(position, doubleMovePos, null));
+            }
         }
 
 
