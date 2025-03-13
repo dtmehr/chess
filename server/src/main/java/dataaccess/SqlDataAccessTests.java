@@ -1,11 +1,9 @@
-package service;
+package dataaccess;
 
-import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
-import dataaccess.SqlDataAccess;
-import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.*;
+import service.GameService;
+import service.UserService;
 
 import java.util.Collection;
 
