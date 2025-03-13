@@ -4,15 +4,10 @@ import model.GameData;
 import org.junit.jupiter.api.*;
 import service.GameService;
 import service.UserService;
-
 import java.util.Collection;
 
-/**
- * Suppress duplicate code warnings in this test class.
- */
 @SuppressWarnings("PMD.DuplicateCode")
 public class SqlDataAccessTests {
-    private SqlDataAccess dao;
     private UserService userService;
     private GameService gameService;
 
@@ -24,7 +19,6 @@ public class SqlDataAccessTests {
         userService.clear();
     }
 
-
     @Test
     public void registerTestValid() throws DataAccessException {
         var result = userService.register("jakeman32", "password123", "jack@email.com");
@@ -34,7 +28,6 @@ public class SqlDataAccessTests {
 
     @Test
     public void registerTestInvalid() throws DataAccessException {
-        // Using empty strings as invalid registration details
         var registered = userService.register("", "", "");
         Assertions.assertEquals("", registered.username());
         Assertions.assertNotNull(registered.authToken(), "Username is empty, but auth token shouldn't be null");
@@ -42,13 +35,9 @@ public class SqlDataAccessTests {
 
     @Test
     public void registerTestDuplicateUser() throws DataAccessException {
-        // Register a user and then try registering the same user again
         userService.register("duplicateUser", "pass", "dup@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.register("duplicateUser", "pass", "dup@mail.com");
-        }, "Expected exception when registering a duplicate username");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.register("duplicateUser", "pass", "dup@mail.com"), "Expected exception when registering a duplicate username");
     }
-
 
     @Test
     public void loginTestValid() throws DataAccessException {
@@ -61,49 +50,35 @@ public class SqlDataAccessTests {
     @Test
     public void loginTestInvalid() throws DataAccessException {
         userService.register("Jimmer", "32", "Jimmer@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.login("Jimmer", "COUGARS");
-        }, "Expected exception for invalid password");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.login("Jimmer", "COUGARS"), "Expected exception for invalid password");
     }
 
     @Test
     public void loginTestNonExistentUser() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.login("NonExistent", "anyPassword");
-        }, "Expected exception for non-existent user");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.login("NonExistent", "anyPassword"), "Expected exception for non-existent user");
     }
 
     @Test
     public void loginTestNullUsername() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.login(null, "password");
-        }, "Expected exception for null username");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.login(null, "password"), "Expected exception for null username");
     }
-
 
     @Test
     public void logoutTestValid() throws DataAccessException {
         var registered = userService.register("Jimmer", "32", "Jimmer@mail.com");
         userService.logout(registered.authToken());
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.logout(registered.authToken());
-        }, "Expected exception when logging out with an already logged out token");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.logout(registered.authToken()), "Expected exception when logging out with an already logged out token");
     }
 
     @Test
     public void logoutTestInvalid() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.logout("not real token");
-        });
+        Assertions.assertThrows(DataAccessException.class, () -> userService.logout("not real token"));
     }
 
     @Test
     public void logoutTestNullToken() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.logout(null);
-        }, "Expected exception for null token on logout");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.logout(null), "Expected exception for null token on logout");
     }
-
 
     @Test
     public void createTestValid() throws DataAccessException {
@@ -114,26 +89,19 @@ public class SqlDataAccessTests {
 
     @Test
     public void createTestInvalid() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            gameService.createGame("this is not a real token", "034");
-        }, "Expected exception for invalid token when creating game");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame("this is not a real token", "034"), "Expected exception for invalid token when creating game");
     }
 
     @Test
     public void createTestEmptyGameName() throws DataAccessException {
         var registered = userService.register("Jimmer", "32", "Jimmer@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            gameService.createGame(registered.authToken(), "");
-        }, "Expected exception for empty game name");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(registered.authToken(), ""), "Expected exception for empty game name");
     }
 
     @Test
     public void createTestNullToken() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            gameService.createGame(null, "ValidGameName");
-        }, "Expected exception for null token when creating game");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(null, "ValidGameName"), "Expected exception for null token when creating game");
     }
-
 
     @Test
     public void joinTestValid() throws DataAccessException {
@@ -146,9 +114,7 @@ public class SqlDataAccessTests {
     @Test
     public void joinTestInvalid() throws DataAccessException {
         var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            gameService.joinGame(jimmer.authToken(), 9999, "WHITE");
-        }, "Expected exception for joining a non-existent game");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(jimmer.authToken(), 9999, "WHITE"), "Expected exception for joining a non-existent game");
     }
 
     @Test
@@ -156,10 +122,7 @@ public class SqlDataAccessTests {
         var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
         var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
         int gameID = gameService.createGame(jimmer.authToken(), "GameX");
-        // Use an invalid team color, e.g., "GREEN"
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            gameService.joinGame(steve.authToken(), gameID, "GREEN");
-        }, "Expected exception for invalid team color");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(steve.authToken(), gameID, "GREEN"), "Expected exception for invalid team color");
     }
 
     @Test
@@ -168,12 +131,8 @@ public class SqlDataAccessTests {
         var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
         int gameID = gameService.createGame(jimmer.authToken(), "GameY");
         gameService.joinGame(jimmer.authToken(), gameID, "WHITE");
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            gameService.joinGame(steve.authToken(), gameID, "WHITE");
-        }, "Expected exception when joining a game with a taken team color");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(steve.authToken(), gameID, "WHITE"), "Expected exception when joining a game with a taken team color");
     }
-
-    // --- GameService.listGames tests ---
 
     @Test
     public void listTestValid() throws DataAccessException {
@@ -195,15 +154,11 @@ public class SqlDataAccessTests {
         Assertions.assertTrue(games.isEmpty(), "Expected empty collection when no games are created");
     }
 
-    // --- UserService.clear tests ---
-
     @Test
     public void clearTestValid() throws DataAccessException {
         userService.register("Jimmer", "32", "jimmer@mail.com");
         userService.clear();
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            userService.login("Jimmer", "32");
-        }, "Expected exception when logging in after clear");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.login("Jimmer", "32"), "Expected exception when logging in after clear");
     }
 
     @Test
