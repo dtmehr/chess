@@ -7,6 +7,19 @@ import chess.ChessGame;
 import java.util.HashSet;
 
 public class PawnMovementLogic {
+    //helper for later rewrite of pawn
+    private static void addMoveOrPromotion(HashSet<ChessMove> moves, ChessPosition start, ChessPosition end, int promotionRow)
+    {
+        if (end.getRow() == promotionRow) {
+            moves.add(new ChessMove(start, end, ChessPiece.PieceType.BISHOP));
+            moves.add(new ChessMove(start, end, ChessPiece.PieceType.ROOK));
+            moves.add(new ChessMove(start, end, ChessPiece.PieceType.KNIGHT));
+            moves.add(new ChessMove(start, end, ChessPiece.PieceType.QUEEN));
+        } else {
+            moves.add(new ChessMove(start, end, null));
+        }
+    }
+
     public static HashSet<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
         HashSet<ChessMove> totalMoves = new HashSet<>();
         //starting position

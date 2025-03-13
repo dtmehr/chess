@@ -120,16 +120,19 @@ public class SqlDataAccess implements DataAccess{
     @Override
     public void clear() throws DataAccessException {
         try (var conn = DatabaseManager.getConnection()){
+            //each of the tables
+            //user
             try (var ps = conn.prepareStatement("DELETE FROM user")) {
                 ps.executeUpdate();
             }
+            //auth
             try (var ps = conn.prepareStatement("DELETE FROM auth")) {
                 ps.executeUpdate();
             }
+            //game
             try (var ps = conn.prepareStatement("DELETE FROM game")) {
                 ps.executeUpdate();
             }
-
         } catch (SQLException exception){
             throw new DataAccessException("clear() fail" + exception.getMessage());
         }
@@ -197,7 +200,7 @@ public class SqlDataAccess implements DataAccess{
             }
             return token;
         } catch (SQLException e) {
-            throw new DataAccessException("Login failed: " + e.getMessage());
+            throw new DataAccessException("login fail" + e.getMessage());
         }
     }
 
@@ -215,7 +218,7 @@ public class SqlDataAccess implements DataAccess{
                 return true;
             }
         } catch (SQLException exception) {
-            throw new DataAccessException("logout() error: " + exception.getMessage());
+            throw new DataAccessException("error with logout()" + exception.getMessage());
         }
     }
 
@@ -251,7 +254,7 @@ public class SqlDataAccess implements DataAccess{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("createGame() error: " + e.getMessage());
+            throw new DataAccessException(" error with createGame()" + e.getMessage());
         }
     }
 
@@ -286,7 +289,7 @@ public class SqlDataAccess implements DataAccess{
                 }
             }
         } catch (SQLException | DataAccessException exception) {
-            throw new DataAccessException("wrong" + exception.getMessage());
+            throw new DataAccessException("error with getAuthData" + exception.getMessage());
         }
         return null;
     }
@@ -296,17 +299,19 @@ public class SqlDataAccess implements DataAccess{
     public Collection<GameData> listGames() throws DataAccessException {
         List<GameData> allGames = new ArrayList<>();
         String sql = "SELECT game_json FROM game";
+        //create variabels for query
         try (var connection = DatabaseManager.getConnection();
              var statement = connection.prepareStatement(sql);
              var result = statement.executeQuery()) {
-
+        //go through result in query
+            // add to list to be returned at end
             while (result.next()) {
                 String gameJson = result.getString("game_json");
                 GameData gameData = gson.fromJson(gameJson, GameData.class);
                 allGames.add(gameData);
             }
         } catch (SQLException e) {
-            throw new DataAccessException("listGames() failed: " + e.getMessage());
+            throw new DataAccessException("listGames() fail" + e.getMessage());
         }
         return allGames;
     }
