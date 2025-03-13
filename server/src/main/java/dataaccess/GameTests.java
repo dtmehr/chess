@@ -4,26 +4,21 @@ import model.GameData;
 import org.junit.jupiter.api.*;
 import service.GameService;
 import service.UserService;
-
 import java.util.Collection;
 
-/**
- * Suppress duplicate code warnings in this test class.
- */
-@SuppressWarnings("PMD.DuplicateCode")
-public class SqlDataAccessTests {
-    private SqlDataAccess dao;
-    private UserService userService;
-    private GameService gameService;
+
+public abstract class GameTests {
+    protected UserService userService;
+    protected GameService gameService;
+    protected abstract DataAccess createDataAccess() throws DataAccessException;
 
     @BeforeEach
     void setup() throws DataAccessException {
-        DataAccess dataAccess = new SqlDataAccess();
+        DataAccess dataAccess = createDataAccess();
         userService = new UserService(dataAccess);
         gameService = new GameService(dataAccess);
         userService.clear();
     }
-
 
     @Test
     public void registerTestValid() throws DataAccessException {
@@ -34,7 +29,6 @@ public class SqlDataAccessTests {
 
     @Test
     public void registerTestInvalid() throws DataAccessException {
-        // Using empty strings as invalid registration details
         var registered = userService.register("", "", "");
         Assertions.assertEquals("", registered.username());
         Assertions.assertNotNull(registered.authToken(), "Username is empty, but auth token shouldn't be null");
@@ -42,14 +36,13 @@ public class SqlDataAccessTests {
 
     @Test
     public void registerTestDuplicateUser() throws DataAccessException {
-        // Register a user and then try registering the same user again
         userService.register("duplicateUser", "pass", "dup@mail.com");
         Assertions.assertThrows(DataAccessException.class, () -> {
             userService.register("duplicateUser", "pass", "dup@mail.com");
         }, "Expected exception when registering a duplicate username");
     }
 
-
+    // --- UserService.login tests ---
     @Test
     public void loginTestValid() throws DataAccessException {
         userService.register("Jimmer", "32", "Jimmer@mail.com");
@@ -80,7 +73,6 @@ public class SqlDataAccessTests {
         }, "Expected exception for null username");
     }
 
-
     @Test
     public void logoutTestValid() throws DataAccessException {
         var registered = userService.register("Jimmer", "32", "Jimmer@mail.com");
@@ -103,7 +95,6 @@ public class SqlDataAccessTests {
             userService.logout(null);
         }, "Expected exception for null token on logout");
     }
-
 
     @Test
     public void createTestValid() throws DataAccessException {
@@ -134,7 +125,6 @@ public class SqlDataAccessTests {
         }, "Expected exception for null token when creating game");
     }
 
-
     @Test
     public void joinTestValid() throws DataAccessException {
         var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
@@ -156,7 +146,6 @@ public class SqlDataAccessTests {
         var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
         var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
         int gameID = gameService.createGame(jimmer.authToken(), "GameX");
-        // Use an invalid team color, e.g., "GREEN"
         Assertions.assertThrows(DataAccessException.class, () -> {
             gameService.joinGame(steve.authToken(), gameID, "GREEN");
         }, "Expected exception for invalid team color");
@@ -167,13 +156,14 @@ public class SqlDataAccessTests {
         var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
         var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
         int gameID = gameService.createGame(jimmer.authToken(), "GameY");
+        // First join for WHITE succeeds.
         gameService.joinGame(jimmer.authToken(), gameID, "WHITE");
+        // Second join for WHITE should fail.
         Assertions.assertThrows(DataAccessException.class, () -> {
             gameService.joinGame(steve.authToken(), gameID, "WHITE");
         }, "Expected exception when joining a game with a taken team color");
     }
 
-    // --- GameService.listGames tests ---
 
     @Test
     public void listTestValid() throws DataAccessException {
@@ -195,8 +185,6 @@ public class SqlDataAccessTests {
         Assertions.assertTrue(games.isEmpty(), "Expected empty collection when no games are created");
     }
 
-    // --- UserService.clear tests ---
-
     @Test
     public void clearTestValid() throws DataAccessException {
         userService.register("Jimmer", "32", "jimmer@mail.com");
@@ -208,6 +196,8 @@ public class SqlDataAccessTests {
 
     @Test
     public void clearTestInvalid() throws DataAccessException {
+        // Calling clear on an already clear database should not throw an exception.
         userService.clear();
     }
 }
+

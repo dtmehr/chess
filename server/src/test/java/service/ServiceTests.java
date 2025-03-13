@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.GameTests;
 import dataaccess.MemoryDataAccess;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 
 
-public class ServiceTests {
+public class ServiceTests extends GameTests {
     private UserService userService;
     private GameService gameService;
 
@@ -24,6 +25,11 @@ public class ServiceTests {
         gameService = new GameService(dataAccess);
 
         userService.clear();
+    }
+
+    @Override
+    protected DataAccess createDataAccess() throws DataAccessException {
+        return null;
     }
 
     @Test
