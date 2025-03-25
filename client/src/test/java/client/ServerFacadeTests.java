@@ -94,6 +94,22 @@ public class ServerFacadeTests {
         assertTrue(message.contains("Logout failed"));
     }
 
+    @Test
+    public void createTestValid() throws Exception {
+        String username = "Jimmer";
+        AuthData registered = facade.register(username, "32", "jimmer@mail.com");
+        //not sure if this authtoken works or not
+        int gameID = facade.createGame(registered.authToken, "032");
+        assertTrue(gameID > 0);
+    }
+
+    @Test
+    public void createTestInvalid() {
+        Exception exception = assertThrows(Exception.class, () -> {
+            facade.createGame("invalid token", "-1");
+        });
+        assertTrue(exception.getMessage().contains("Create game failed"));
+    }
 
 
 

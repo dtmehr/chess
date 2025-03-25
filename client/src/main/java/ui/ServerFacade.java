@@ -78,4 +78,29 @@ public class ServerFacade {
             throw new Exception("Logout failed");
         }
     }
+
+//create game
+    public int createGame(String authToken, String gameName) throws Exception {
+        String endpoint = baseUrl + "/game";
+        Gson gson = new Gson();
+        //use gameName or id?
+        JsonObject json = new JsonObject();
+        json.addProperty("gameName", gameName);
+        String requestBody = json.toString();
+
+//same as before
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken).header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            String body = response.body() != null ? response.body() : "";
+            throw new Exception("Create game failed: " + body);
+        }
+
+        Map<String, Double> result = gson.fromJson(response.body(), Map.class);
+        //need gameID
+        return result.get("gameID").intValue();
+    }
 }
