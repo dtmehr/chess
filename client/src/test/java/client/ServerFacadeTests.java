@@ -111,6 +111,25 @@ public class ServerFacadeTests {
         assertTrue(exception.getMessage().contains("Create game failed"));
     }
 
+    @Test
+    public void joinTestValid() throws Exception {
+        String user1 = "Jimmer";
+        String user2 = "Stevejobster";
+        AuthData jimmer = facade.register(user1, "32", "jimmer@mail.com");
+        AuthData steve = facade.register(user2, "Jobs", "jobs@mail.com");
+        int gameID = facade.createGame(jimmer.authToken, "Game_078");
+        facade.joinGame(steve.authToken, gameID, "BLACK");
+    }
+
+    @Test
+    public void joinTestInvalid() throws Exception {
+        String username = "Jimmer";
+        AuthData jimmer = facade.register(username, "32", "jimmer@mail.com");
+        Exception exception = assertThrows(Exception.class, () -> {
+            facade.joinGame(jimmer.authToken, 9999, "WHITE");});
+        assertTrue(exception.getMessage().contains("Join game failed"));
+    }
+
 
 
 }

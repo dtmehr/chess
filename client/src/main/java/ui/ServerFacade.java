@@ -103,4 +103,24 @@ public class ServerFacade {
         //need gameID
         return result.get("gameID").intValue();
     }
+//join game
+    public void joinGame(String authToken, int gameId, String color) throws Exception {
+        String endpoint = baseUrl + "/game";
+        Gson gson = new Gson();
+//needs gameID and player color
+        JsonObject json = new JsonObject();
+        json.addProperty("gameID", gameId);
+        json.addProperty("playerColor", color);
+        String requestBody = json.toString();
+
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken).header("Content-Type", "application/json")
+                .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        //errors
+        if (response.statusCode() != 200) {
+            throw new Exception("Join game failed ");
+        }
+    }
 }
