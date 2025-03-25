@@ -106,7 +106,7 @@ public class ServerFacade {
 //join game
     public void joinGame(String authToken, int gameId, String color) throws Exception {
         String endpoint = baseUrl + "/game";
-        Gson gson = new Gson();
+
 //needs gameID and player color
         JsonObject json = new JsonObject();
         json.addProperty("gameID", gameId);
@@ -123,4 +123,24 @@ public class ServerFacade {
             throw new Exception("Join game failed ");
         }
     }
+
+    public List<GameData> listGames(String authToken) throws Exception {
+        String endpoint = baseUrl + "/game";
+        Gson gson = new Gson();
+
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken).header("Content-Type", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+        //errors
+        if (response.statusCode() != 200) {
+            throw new Exception("List games failed ");
+        }
+
+        Type type = new TypeToken<Map<String, List<GameData>>>(){}.getType();
+        Map<String, List<GameData>> result = gson.fromJson(response.body(), type);
+        return result.get("games");
+    }
+
 }

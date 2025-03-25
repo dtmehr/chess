@@ -17,13 +17,12 @@ public class ServerFacadeTests {
 
     private Server server;
     private ServerFacade facade;
-    private int port;
-    private final Gson gson = new Gson();
+//    private final Gson gson = new Gson();
 
     @BeforeEach
     public void setUp() throws Exception {
         server = new Server();
-        port = server.run(0);
+        int port = server.run(0);
         facade = new ServerFacade(port);
 
         //clear db
@@ -130,6 +129,23 @@ public class ServerFacadeTests {
         assertTrue(exception.getMessage().contains("Join game failed"));
     }
 
+    @Test
+    public void listTestValid() throws Exception {
+        String username = "JimmerMan";
+        AuthData jimmer = facade.register(username, "32", "jimmer@mail.com");
+        facade.createGame(jimmer.authToken, "Game One");
+        facade.createGame(jimmer.authToken, "Game Two");
+        Collection<GameData> allGames = facade.listGames(jimmer.authToken);
+        assertEquals(2, allGames.size());
+    }
+
+    @Test
+    public void listTestInvalid() {
+        Exception exception = assertThrows(Exception.class, () -> {
+            facade.listGames("invalid token");
+        });
+        assertTrue(exception.getMessage().contains("List games failed"));
+    }
 
 
 }

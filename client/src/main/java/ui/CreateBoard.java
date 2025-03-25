@@ -33,6 +33,12 @@ public class CreateBoard {
         for (int i = 0; i < 8; i++) {
             board[6][i] = EscapeSequences.BLACK_PAWN;
         }
+        //EMPTY
+        for (int row = 2; row <= 5; row++) {
+            for (int col = 0; col < 8; col++) {
+                board[row][col] = EscapeSequences.EMPTY;
+            }
+        }
 
     }
 }
