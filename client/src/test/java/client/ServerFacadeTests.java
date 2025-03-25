@@ -26,6 +26,9 @@ public class ServerFacadeTests {
         port = server.run(0);
         facade = new ServerFacade(port);
 
+        //clear db
+        HttpRequest clearRequest = HttpRequest.newBuilder().uri(new URI("http://localhost:" + port + "/db")).DELETE().build();
+        HttpResponse<String> clearResponse = HttpClient.newHttpClient().send(clearRequest, HttpResponse.BodyHandlers.ofString());
     }
 
     @AfterEach
@@ -48,6 +51,26 @@ public class ServerFacadeTests {
         assertNotNull(actualMessage, "cant be null");
         assertTrue(actualMessage.contains("Registration failed"));
     }
+
+    @Test
+    public void loginTestValid() throws Exception {
+        String username = "jimmer";
+        facade.register(username, "32", "jimmer@mail.com");
+        AuthData result = facade.login(username, "32");
+        assertEquals(username, result.username);
+        assertNotNull(result.authToken);
+    }
+
+    @Test
+    public void loginTestInvalid() throws Exception {
+        String username = "jimmer";
+        facade.register(username, "32", "jimmer2@mail.com");
+        Exception exception = assertThrows(Exception.class, () -> {
+            facade.login(username, "wrongpassword");
+        });
+        assertTrue(exception.getMessage().contains("Login failed"));
+    }
+
 
 
 }

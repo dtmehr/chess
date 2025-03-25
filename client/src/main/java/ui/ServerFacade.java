@@ -40,8 +40,27 @@ public class ServerFacade {
 
         //error catching
         if (response.statusCode() != 200) {
-            String body = response.body() != null ? response.body() : "";
-            throw new Exception("Registration failed: " + body);
+            throw new Exception("Registration failed");
+        }
+        return gson.fromJson(response.body(), AuthData.class);
+    }
+
+//    login
+    public AuthData login(String username, String password) throws Exception {
+        String endpoint = baseUrl + "/session";
+        Gson gson = new Gson();
+//get username password
+        JsonObject json = new JsonObject();
+        json.addProperty("username", username);
+        json.addProperty("password", password);
+        String requestBody = json.toString();
+
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+//        error
+        if (response.statusCode() != 200) {
+            throw new Exception("Login failed");
         }
         return gson.fromJson(response.body(), AuthData.class);
     }
