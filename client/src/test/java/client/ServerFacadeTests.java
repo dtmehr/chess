@@ -22,8 +22,48 @@ public class ServerFacadeTests {
 
 
     @Test
-    public void sampleTest() {
-        Assertions.assertTrue(true);
+    public void testRegisterPositive() {
+
+    }
+
+    @Test
+    public void testRegisterNegative() {
+
+    }
+
+    @Test
+    public void testRegisterPositive() {
+
+    }
+
+    @Test
+    public void testLoginPositive() {
+
+    }
+
+    @Test
+    public void testLoginNegative() {
+
+    }
+
+    @Test
+    public void testLogoutPositive() {
+
+    }
+
+    @Test
+    public void testLogoutNegative() {
+
+    }
+
+    @Test
+    public void testCreateGamePositive() {
+
+    }
+
+    @Test
+    public void testCreateGameNegative() {
+
     }
 
 }
