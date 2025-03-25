@@ -65,4 +65,17 @@ public class ServerFacade {
         return gson.fromJson(response.body(), AuthData.class);
     }
 
+    //logout
+    public void logout(String authToken) throws Exception {
+        String endpoint = baseUrl + "/session";
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken)
+                .DELETE()
+                .build();
+
+        HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
+//        errors
+        if (response.statusCode() != 200) {
+            throw new Exception("Logout failed");
+        }
+    }
 }

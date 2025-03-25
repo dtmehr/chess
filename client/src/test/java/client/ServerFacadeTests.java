@@ -71,6 +71,30 @@ public class ServerFacadeTests {
         assertTrue(exception.getMessage().contains("Login failed"));
     }
 
+    @Test
+    public void logoutTestValid() throws Exception {
+        String username = "Jimmer";
+        AuthData registered = facade.register(username, "32", "Jimmer@mail.com");
+        facade.logout(registered.authToken);
+        Exception exception = assertThrows(Exception.class, () -> {
+            facade.logout(registered.authToken);
+        });
+        String message = exception.getMessage();
+        assertNotNull(message, "Exception message should not be null");
+        assertTrue(message.contains("Logout failed"));
+    }
+
+    @Test
+    public void logoutTestInvalid() {
+        Exception exception = assertThrows(Exception.class, () -> {
+            facade.logout("not real token");});
+
+        String message = exception.getMessage();
+        assertNotNull(message, "Exception message should not be null");
+        assertTrue(message.contains("Logout failed"));
+    }
+
+
 
 
 }
