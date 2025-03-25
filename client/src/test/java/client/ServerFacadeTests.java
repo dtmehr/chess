@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import server.Server;
 
 
+
 public class ServerFacadeTests {
 
     private static Server server;
@@ -28,11 +29,6 @@ public class ServerFacadeTests {
 
     @Test
     public void testRegisterNegative() {
-
-    }
-
-    @Test
-    public void testRegisterPositive() {
 
     }
 
