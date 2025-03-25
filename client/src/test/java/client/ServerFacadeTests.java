@@ -1,65 +1,53 @@
 package client;
 
 import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+import ui.ServerFacade;
+import model.AuthData;
+import model.GameData;
 import server.Server;
 
-
+import java.net.http.*;
+import java.net.URI;
+import com.google.gson.Gson;
+import java.util.Collection;
 
 public class ServerFacadeTests {
 
-    private static Server server;
+    private Server server;
+    private ServerFacade facade;
+    private int port;
+    private final Gson gson = new Gson();
 
-    @BeforeAll
-    public static void init() {
+    @BeforeEach
+    public void setUp() throws Exception {
         server = new Server();
-        var port = server.run(0);
-        System.out.println("Started test HTTP server on " + port);
+        port = server.run(0);
+        facade = new ServerFacade(port);
+
     }
 
-    @AfterAll
-    static void stopServer() {
+    @AfterEach
+    public void tearDown() {
         server.stop();
     }
 
-
     @Test
-    public void testRegisterPositive() {
-
+    public void registerTestValid() throws Exception {
+        String username = "jakeman32_" + System.currentTimeMillis();
+        AuthData result = facade.register(username, "password123", "jack@email.com");
+        assertEquals(username, result.username, "username needs to match");
+        assertNotNull(result.authToken, "Token should not be null");
     }
 
     @Test
-    public void testRegisterNegative() {
-
+    public void registerTestInvalid() {
+        Exception exception = assertThrows(Exception.class, () -> {facade.register("jakeman32", null, "jack@email.com");});
+        String actualMessage = exception.getMessage();
+        assertNotNull(actualMessage, "cant be null");
+        assertTrue(actualMessage.contains("Registration failed"));
     }
 
-    @Test
-    public void testLoginPositive() {
-
-    }
-
-    @Test
-    public void testLoginNegative() {
-
-    }
-
-    @Test
-    public void testLogoutPositive() {
-
-    }
-
-    @Test
-    public void testLogoutNegative() {
-
-    }
-
-    @Test
-    public void testCreateGamePositive() {
-
-    }
-
-    @Test
-    public void testCreateGameNegative() {
-
-    }
 
 }
