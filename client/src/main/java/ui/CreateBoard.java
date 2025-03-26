@@ -33,7 +33,7 @@ public class CreateBoard {
         for (int c = 0; c < 8; c++) {
             board[6][c] = EscapeSequences.BLACK_PAWN;
         }
-
+//use other file color stuff
         if (whitePerspective) {
             for (int r = 7; r >= 0; r--) {
                 for (int c = 0; c < 8; c++) {
