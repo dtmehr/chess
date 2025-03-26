@@ -58,7 +58,7 @@ public class ServerFacade {
         HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
 
         HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
-//        error
+
         if (response.statusCode() != 200) {
             throw new Exception("Login failed");
         }
@@ -73,7 +73,7 @@ public class ServerFacade {
                 .build();
 
         HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
-//        errors
+        //        errors
         if (response.statusCode() != 200) {
             throw new Exception("Logout failed");
         }

@@ -2,11 +2,14 @@ package ui;
 
 public class CreateBoard {
 
-    public static void drawBoard() {
-        //call pieces from other file
-        //similar to og set up
-        //white
+    public static void drawBoard(boolean whitePerspective) {
         String[][] board = new String[8][8];
+
+        for (int r = 0; r < 8; r++) {
+            for (int c = 0; c < 8; c++) {
+                board[r][c] = EscapeSequences.EMPTY;
+            }
+        }
         board[0][0] = EscapeSequences.WHITE_ROOK;
         board[0][1] = EscapeSequences.WHITE_KNIGHT;
         board[0][2] = EscapeSequences.WHITE_BISHOP;
@@ -15,12 +18,10 @@ public class CreateBoard {
         board[0][5] = EscapeSequences.WHITE_BISHOP;
         board[0][6] = EscapeSequences.WHITE_KNIGHT;
         board[0][7] = EscapeSequences.WHITE_ROOK;
-        //pawns
-        for (int i = 0; i < 8; i++) {
-            board[1][i] = EscapeSequences.WHITE_PAWN;
+        for (int c = 0; c < 8; c++) {
+            board[1][c] = EscapeSequences.WHITE_PAWN;
         }
 
-        //black
         board[7][0] = EscapeSequences.BLACK_ROOK;
         board[7][1] = EscapeSequences.BLACK_KNIGHT;
         board[7][2] = EscapeSequences.BLACK_BISHOP;
@@ -29,16 +30,31 @@ public class CreateBoard {
         board[7][5] = EscapeSequences.BLACK_BISHOP;
         board[7][6] = EscapeSequences.BLACK_KNIGHT;
         board[7][7] = EscapeSequences.BLACK_ROOK;
-        //pawns
-        for (int i = 0; i < 8; i++) {
-            board[6][i] = EscapeSequences.BLACK_PAWN;
-        }
-        //EMPTY
-        for (int row = 2; row <= 5; row++) {
-            for (int col = 0; col < 8; col++) {
-                board[row][col] = EscapeSequences.EMPTY;
-            }
+        for (int c = 0; c < 8; c++) {
+            board[6][c] = EscapeSequences.BLACK_PAWN;
         }
 
+        if (whitePerspective) {
+            for (int r = 7; r >= 0; r--) {
+                for (int c = 0; c < 8; c++) {
+                    String bgColor = ((r + c) % 2 == 0) ?
+                            EscapeSequences.SET_BG_COLOR_BLACK :
+                            EscapeSequences.SET_BG_COLOR_WHITE;
+                    System.out.print(bgColor + board[r][c] + EscapeSequences.RESET_BG_COLOR);
+                }
+                System.out.println();
+            }
+        } else {
+            for (int r = 0; r < 8; r++) {
+                for (int c = 7; c >= 0; c--) {
+                    String bgColor = ((r + c) % 2 == 0) ?
+                            EscapeSequences.SET_BG_COLOR_BLACK :
+                            EscapeSequences.SET_BG_COLOR_WHITE;
+                    System.out.print(bgColor + board[r][c] + EscapeSequences.RESET_BG_COLOR);
+                }
+                System.out.println();
+            }
+        }
     }
+
 }
