@@ -116,7 +116,7 @@ public class SqlDataAccessTests {
         var jimmer = userService.register("Jimmer", "32", "@mail.com");
         Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(jimmer.authToken(), 9999, "WHITE"));
     }
-
+//test
     @Test
     public void joinTestInvalidTeamColor() throws DataAccessException {
         var jimmer = userService.register("Jimmer", "32", "mail.com");
