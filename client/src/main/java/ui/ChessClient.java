@@ -7,7 +7,7 @@ import model.GameData;
 
 public class ChessClient {
     private static ServerFacade facade;
-    private static final Scanner scanner = new Scanner(System.in);
+    private static final Scanner scan = new Scanner(System.in);
     private static String currentAuthToken = null;
     private static List<GameData> lastGameList;
 
@@ -35,7 +35,7 @@ public class ChessClient {
         System.out.println("login");
         System.out.println("register");
         System.out.print("enter your choice: ");
-        String choice = scanner.nextLine().trim();
+        String choice = scan.nextLine().trim();
 
         switch (choice.toLowerCase()) {
             case "help":
@@ -62,9 +62,9 @@ public class ChessClient {
 
     private static void login() throws Exception {
         System.out.print("enter username: ");
-        String username = scanner.nextLine().trim();
+        String username = scan.nextLine().trim();
         System.out.print("enter password: ");
-        String password = scanner.nextLine().trim();
+        String password = scan.nextLine().trim();
         AuthData authData = facade.login(username, password);
         currentAuthToken = authData.authToken;
         System.out.println("login successful.");
@@ -72,11 +72,11 @@ public class ChessClient {
 
     private static void register() throws Exception {
         System.out.print("enter username: ");
-        String username = scanner.nextLine().trim();
+        String username = scan.nextLine().trim();
         System.out.print("enter password: ");
-        String password = scanner.nextLine().trim();
+        String password = scan.nextLine().trim();
         System.out.print("enter email: ");
-        String email = scanner.nextLine().trim();
+        String email = scan.nextLine().trim();
         AuthData authData = facade.register(username, password, email);
         currentAuthToken = authData.authToken;
         System.out.println("registration successful");
@@ -91,7 +91,7 @@ public class ChessClient {
         System.out.println("play game");
         System.out.println("observe game");
         System.out.print("enter choice: ");
-        String choice = scanner.nextLine().trim();
+        String choice = scan.nextLine().trim();
 
         switch (choice.toLowerCase()) {
             case "help":
@@ -127,7 +127,7 @@ public class ChessClient {
 
     private static void createGame() throws Exception {
         System.out.print("enter a name for the new game: ");
-        String gameName = scanner.nextLine().trim();
+        String gameName = scan.nextLine().trim();
         int gameID = facade.createGame(currentAuthToken, gameName);
         System.out.println("game '" + gameName + "' created with id: " + gameID);
     }
@@ -154,13 +154,13 @@ public class ChessClient {
             return;
         }
         System.out.print("enter the game number you want to join: ");
-        int number = Integer.parseInt(scanner.nextLine().trim());
+        int number = Integer.parseInt(scan.nextLine().trim());
         if (number < 1 || number > lastGameList.size()) {
             System.out.println("invalid game number.");
             return;
         }
         System.out.print("enter desired color (white/black): ");
-        String color = scanner.nextLine().trim().toLowerCase();
+        String color = scan.nextLine().trim().toLowerCase();
         int gameID = lastGameList.get(number - 1).getGameID();
         facade.joinGame(currentAuthToken, gameID, color);
         System.out.println("you have joined game '" + lastGameList.get(number - 1).getGameName() +
@@ -175,7 +175,7 @@ public class ChessClient {
             return;
         }
         System.out.print("enter the game number you want to observe: ");
-        int number = Integer.parseInt(scanner.nextLine().trim());
+        int number = Integer.parseInt(scan.nextLine().trim());
         if (number < 1 || number > lastGameList.size()) {
             System.out.println("invalid game number.");
             return;

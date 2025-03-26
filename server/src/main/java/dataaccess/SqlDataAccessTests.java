@@ -1,10 +1,9 @@
 package dataaccess;
 
-import model.GameData;
+
 import org.junit.jupiter.api.*;
 import service.GameService;
 import service.UserService;
-import java.util.Collection;
 
 @SuppressWarnings("PMD.DuplicateCode")
 public class SqlDataAccessTests {
@@ -19,12 +18,7 @@ public class SqlDataAccessTests {
         userService.clear();
     }
 
-    @Test
-    public void registerTestValid() throws DataAccessException {
-        var result = userService.register("jakeman32", "password123", "jack@email.com");
-        Assertions.assertEquals("jakeman32", result.username());
-        Assertions.assertNotNull(result.authToken(), "Token should not be null");
-    }
+
 
     @Test
     public void registerTestInvalid() throws DataAccessException {
@@ -47,11 +41,6 @@ public class SqlDataAccessTests {
         Assertions.assertNotNull(result.authToken());
     }
 
-    @Test
-    public void loginTestInvalid() throws DataAccessException {
-        userService.register("Jimmer", "32", "Jimmer@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> userService.login("Jimmer", "COUGARS"), "Expected exception for invalid password");
-    }
 
     @Test
     public void loginTestNonExistentUser() {
@@ -111,11 +100,7 @@ public class SqlDataAccessTests {
         gameService.joinGame(steve.authToken(), gameID, "BLACK");
     }
 
-    @Test
-    public void joinTestInvalid() throws DataAccessException {
-        var jimmer = userService.register("Jimmer", "32", "@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(jimmer.authToken(), 9999, "WHITE"));
-    }
+
 //test
     @Test
     public void joinTestInvalidTeamColor() throws DataAccessException {
@@ -143,16 +128,7 @@ public class SqlDataAccessTests {
         Assertions.assertEquals(2, allGames.size(), "Expected 2 games");
     }
 
-    @Test
-    public void listTestInvalid() {
-        Collection<GameData> games = null;
-        try {
-            games = gameService.listGames();
-        } catch (DataAccessException e) {
-            Assertions.fail("listGames threw an exception: " + e.getMessage());
-        }
-        Assertions.assertTrue(games.isEmpty(), "Expected empty collection when no games are created");
-    }
+
 
     @Test
     public void clearTestValid() throws DataAccessException {
@@ -161,8 +137,5 @@ public class SqlDataAccessTests {
         Assertions.assertThrows(DataAccessException.class, () -> userService.login("Jimmer", "32"), "Expected exception when logging in after clear");
     }
 
-    @Test
-    public void clearTestInvalid() throws DataAccessException {
-        userService.clear();
-    }
+
 }

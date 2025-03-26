@@ -55,7 +55,9 @@ public class ServerFacade {
         json.addProperty("password", password);
         String requestBody = json.toString();
 
-        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody)).build();
 
         HttpResponse<String> response = http.send(request, HttpResponse.BodyHandlers.ofString());
 
@@ -89,7 +91,8 @@ public class ServerFacade {
         String requestBody = json.toString();
 
 //same as before
-        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken).header("Content-Type", "application/json")
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken)
+                .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
@@ -113,7 +116,8 @@ public class ServerFacade {
         json.addProperty("playerColor", color);
         String requestBody = json.toString();
 
-        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken).header("Content-Type", "application/json")
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint))
+                .header("authorization", authToken).header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
@@ -128,7 +132,8 @@ public class ServerFacade {
         String endpoint = baseUrl + "/game";
         Gson gson = new Gson();
 
-        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint)).header("authorization", authToken).header("Content-Type", "application/json")
+        HttpRequest request = HttpRequest.newBuilder().uri(new URI(endpoint))
+                .header("authorization", authToken).header("Content-Type", "application/json")
                 .GET()
                 .build();
 
