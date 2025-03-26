@@ -248,8 +248,6 @@ public class SqlDataAccess implements DataAccess{
         }
     }
 
-
-//huge changes to fix
     @Override
     public void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException {
         // check auth
@@ -272,16 +270,19 @@ public class SqlDataAccess implements DataAccess{
                     }
                     String gameJson = results.getString("game_json");
                     GameData gameData = gson.fromJson(gameJson, GameData.class);
-                    //assign colors
+
+                    // team taken?
+                    if ("WHITE".equals(teamColor) && gameData.getWhiteUsername() != null && !gameData.getWhiteUsername().isEmpty()) {
+                        throw new DataAccessException("already taken");
+                    }
+                    if ("BLACK".equals(teamColor) && gameData.getBlackUsername() != null && !gameData.getBlackUsername().isEmpty()) {
+                        throw new DataAccessException("already taken");
+                    }
+
+                    // assign color
                     if ("WHITE".equals(teamColor)) {
-                        if (gameData.getWhiteUsername() != null && !gameData.getWhiteUsername().isEmpty()) {
-                            throw new DataAccessException("already taken");
-                        }
                         gameData.setWhiteUsername(authData.getUsername());
                     } else {
-                        if (gameData.getBlackUsername() != null && !gameData.getBlackUsername().isEmpty()) {
-                            throw new DataAccessException("already taken");
-                        }
                         gameData.setBlackUsername(authData.getUsername());
                     }
                     String updateSql = "UPDATE game SET game_json = ? WHERE game_id = ?";
@@ -296,7 +297,6 @@ public class SqlDataAccess implements DataAccess{
             throw new DataAccessException("joinGame() error" + e.getMessage());
         }
     }
-
 
 
     //same patter as before btu for sql
