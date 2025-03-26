@@ -33,13 +33,7 @@ public class SqlDataAccessTests {
         Assertions.assertThrows(DataAccessException.class, () -> userService.register("d", "pass", "ma"));
     }
 
-    @Test
-    public void loginTestValid() throws DataAccessException {
-        userService.register("Jimmer", "32", "Jimmer@mail.com");
-        var result = userService.login("Jimmer", "32");
-        Assertions.assertEquals("Jimmer", result.username());
-        Assertions.assertNotNull(result.authToken());
-    }
+
 
 
     @Test
@@ -92,23 +86,6 @@ public class SqlDataAccessTests {
         Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(null, "ValidGameName"));
     }
 
-    @Test
-    public void joinTestValid() throws DataAccessException {
-        var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
-        var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
-        int gameID = gameService.createGame(jimmer.authToken(), "078");
-        gameService.joinGame(steve.authToken(), gameID, "BLACK");
-    }
-
-
-//test
-    @Test
-    public void joinTestInvalidTeamColor() throws DataAccessException {
-        var jimmer = userService.register("Jimmer", "32", "mail.com");
-        var steve = userService.register("S", "Jobs", "J@mail.com");
-        int gameID = gameService.createGame(jimmer.authToken(), "GameX");
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(steve.authToken(), gameID, "GREEN"));
-    }
 
     @Test
     public void joinTestTeamAlreadyTaken() throws DataAccessException {

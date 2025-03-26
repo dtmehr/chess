@@ -5,9 +5,9 @@ public class CreateBoard {
     public static void drawBoard(boolean whitePerspective) {
         String[][] board = new String[8][8];
 
-        for (int r = 0; r < 8; r++) {
+        for (int row = 0; row < 8; row++) {
             for (int c = 0; c < 8; c++) {
-                board[r][c] = EscapeSequences.EMPTY;
+                board[row][c] = EscapeSequences.EMPTY;
             }
         }
         board[0][0] = EscapeSequences.WHITE_ROOK;

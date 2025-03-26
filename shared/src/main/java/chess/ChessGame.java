@@ -293,11 +293,15 @@ public class ChessGame {
     //helpful for debugging?
     @Override
     public boolean equals(Object o) {
-        if(o == null || getClass() != o.getClass())
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         ChessGame chessGame = (ChessGame) o;
-        return endGame == chessGame.endGame && Objects.equals(board, chessGame.board) && teamTurn == chessGame.teamTurn;
+        return endGame == chessGame.endGame &&
+                Objects.equals(board, chessGame.board) &&
+                teamTurn == chessGame.teamTurn;
     }
+
 
     @Override
     public int hashCode() {
