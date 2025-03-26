@@ -35,8 +35,8 @@ public class SqlDataAccessTests {
 
     @Test
     public void registerTestDuplicateUser() throws DataAccessException {
-        userService.register("duplicateUser", "pass", "dup@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> userService.register("duplicateUser", "pass", "dup@mail.com"), "Expected exception when registering a duplicate username");
+        userService.register("d", "pass", "ma");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.register("d", "pass", "ma"));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class SqlDataAccessTests {
 
     @Test
     public void loginTestNonExistentUser() {
-        Assertions.assertThrows(DataAccessException.class, () -> userService.login("NonExistent", "anyPassword"), "Expected exception for non-existent user");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.login("n", "any"));
     }
 
     @Test
@@ -65,9 +65,9 @@ public class SqlDataAccessTests {
 
     @Test
     public void logoutTestValid() throws DataAccessException {
-        var registered = userService.register("Jimmer", "32", "Jimmer@mail.com");
+        var registered = userService.register("Jim", "32", "@mail.com");
         userService.logout(registered.authToken());
-        Assertions.assertThrows(DataAccessException.class, () -> userService.logout(registered.authToken()), "Expected exception when logging out with an already logged out token");
+        Assertions.assertThrows(DataAccessException.class, () -> userService.logout(registered.authToken()), "error");
     }
 
     @Test
@@ -89,18 +89,18 @@ public class SqlDataAccessTests {
 
     @Test
     public void createTestInvalid() {
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame("this is not a real token", "034"), "Expected exception for invalid token when creating game");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame("afke", "034"));
     }
 
     @Test
     public void createTestEmptyGameName() throws DataAccessException {
         var registered = userService.register("Jimmer", "32", "Jimmer@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(registered.authToken(), ""), "Expected exception for empty game name");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(registered.authToken(), ""));
     }
 
     @Test
     public void createTestNullToken() {
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(null, "ValidGameName"), "Expected exception for null token when creating game");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.createGame(null, "ValidGameName"));
     }
 
     @Test
@@ -113,16 +113,16 @@ public class SqlDataAccessTests {
 
     @Test
     public void joinTestInvalid() throws DataAccessException {
-        var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(jimmer.authToken(), 9999, "WHITE"), "Expected exception for joining a non-existent game");
+        var jimmer = userService.register("Jimmer", "32", "@mail.com");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(jimmer.authToken(), 9999, "WHITE"));
     }
 
     @Test
     public void joinTestInvalidTeamColor() throws DataAccessException {
-        var jimmer = userService.register("Jimmer", "32", "Jimmer@mail.com");
-        var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
+        var jimmer = userService.register("Jimmer", "32", "mail.com");
+        var steve = userService.register("S", "Jobs", "J@mail.com");
         int gameID = gameService.createGame(jimmer.authToken(), "GameX");
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(steve.authToken(), gameID, "GREEN"), "Expected exception for invalid team color");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(steve.authToken(), gameID, "GREEN"));
     }
 
     @Test
@@ -131,7 +131,7 @@ public class SqlDataAccessTests {
         var steve = userService.register("Steve", "Jobs", "Jobs@mail.com");
         int gameID = gameService.createGame(jimmer.authToken(), "GameY");
         gameService.joinGame(jimmer.authToken(), gameID, "WHITE");
-        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(steve.authToken(), gameID, "WHITE"), "Expected exception when joining a game with a taken team color");
+        Assertions.assertThrows(DataAccessException.class, () -> gameService.joinGame(steve.authToken(), gameID, "WHITE"));
     }
 
     @Test
