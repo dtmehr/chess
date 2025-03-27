@@ -54,13 +54,6 @@ public class CreateBoard {
                 ? new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'}
                 : new char[]{'h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'};
 
-        // top
-        System.out.print("  ");
-        for (char col : columns) {
-            System.out.print(" " + col + " ");
-        }
-        System.out.println();
-
         // order
         int start, end, step;
         if (whitePerspective) {
@@ -69,11 +62,17 @@ public class CreateBoard {
             start = 0; end = 8; step = 1;
         }
 
-        // Print each row with row numbers on the left and right.
-        for (int row = start; row != end; row += step) {
-            int rowLabel = whitePerspective ? row + 1 : 8 - row;
-            System.out.print(rowLabel + " ");
+        // top headers
+        System.out.print("  ");
+        for (char col : columns) {
+            System.out.print(" " + col + " ");
+        }
+        System.out.println();
 
+        // go row by row with numbers
+        for (int row = start; row != end; row += step) {
+            int rowLabel = row + 1;
+            System.out.print(rowLabel + " ");
             if (whitePerspective) {
                 for (int column = 0; column < 8; column++) {
                     String bgColor = ((row + column) % 2 == 0)

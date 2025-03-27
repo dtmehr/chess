@@ -150,16 +150,22 @@ public class ChessClient {
 
     private static void playGame() throws Exception {
         if (lastGameList == null || lastGameList.isEmpty()) {
-            System.out.println("no games available. please list games first.");
+            System.out.println("please list games first.");
             return;
         }
-        System.out.print("enter the game number you want to join: ");
-        int number = Integer.parseInt(SCAN.nextLine().trim());
+        System.out.print("enter the game number to join: ");
+        int number;
+        try {
+            number = Integer.parseInt(SCAN.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("please enter a valid number");
+            return;
+        }
         if (number < 1 || number > lastGameList.size()) {
-            System.out.println("invalid game number.");
+            System.out.println("invalid game number");
             return;
         }
-        System.out.print("enter desired color (white/black): ");
+        System.out.print("enter desired color (white/black)");
         String color = SCAN.nextLine().trim().toUpperCase();
         int gameID = lastGameList.get(number - 1).getGameID();
         facade.joinGame(currentAuthToken, gameID, color);
@@ -171,13 +177,13 @@ public class ChessClient {
 
     private static void observeGame() {
         if (lastGameList == null || lastGameList.isEmpty()) {
-            System.out.println("no games available. please list games first.");
+            System.out.println("please list games first");
             return;
         }
-        System.out.print("enter the game number you want to observe: ");
+        System.out.print("enter the game number you want to observe");
         int number = Integer.parseInt(SCAN.nextLine().trim());
         if (number < 1 || number > lastGameList.size()) {
-            System.out.println("invalid game number.");
+            System.out.println("invalid game number");
             return;
         }
         System.out.println("observing game '" + lastGameList.get(number - 1).getGameName() + "'.");
