@@ -175,9 +175,9 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        //go through each piece on the board to find the king
-        //set null king pos to be filled later
+        // given team king col
         ChessPosition king = null;
+        //loop in board
         for (int y = 1; y <= 8; y++) {
             for (int x = 1; x <= 8; x++) {
                 ChessPosition square = new ChessPosition(x, y);
@@ -187,32 +187,27 @@ public class ChessGame {
                 }
             }
         }
-        //check if opponent can attack king rn
-        //find op team color
+        // set op team color
         TeamColor opponent = (teamColor == TeamColor.WHITE) ? BLACK : TeamColor.WHITE;
-        //same start to loop as before
+
+        // op can check king?
         for (int y = 1; y <= 8; y++) {
             for (int x = 1; x <= 8; x++) {
                 ChessPosition square = new ChessPosition(x, y);
                 ChessPiece piece = board.getPiece(square);
-                //this might be helpful for edge case scenarios?
-                if(piece == null){
+                if (piece == null || piece.getTeamColor() != opponent) {
                     continue;
                 }
-                //create opMoves
-                //if any of them end where king is, king is in check
-                if(piece.getTeamColor() == opponent){
-                    Collection<ChessMove> opMoves = fakeValidMoves(square);
-                    for(ChessMove move : opMoves){
-                        if(move.getEndPosition().equals(king)){
-                            return true;
-                        }
+                for (ChessMove move : fakeValidMoves(square)) {
+                    if (move.getEndPosition().equals(king)) {
+                        return true;
                     }
                 }
             }
         }
         return false;
     }
+
 
     /**
      * Determines if the given team is in checkmate
