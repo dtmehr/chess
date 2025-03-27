@@ -160,12 +160,12 @@ public class ChessClient {
             return;
         }
         System.out.print("enter desired color (white/black): ");
-        String color = SCAN.nextLine().trim().toLowerCase();
+        String color = SCAN.nextLine().trim().toUpperCase();
         int gameID = lastGameList.get(number - 1).getGameID();
         facade.joinGame(currentAuthToken, gameID, color);
         System.out.println("you have joined game '" + lastGameList.get(number - 1).getGameName() +
                 "' as " + color + ".");
-        boolean whitePerspective = color.equals("white");
+        boolean whitePerspective = color.equals("WHITE");
         CreateBoard.drawBoard(whitePerspective);
     }
 
