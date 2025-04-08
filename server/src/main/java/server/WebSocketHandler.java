@@ -11,6 +11,9 @@ import java.util.concurrent.*;
 @WebSocket
 public class WebSocketHandler {
     private static final Gson gson = new Gson();
+
+    public WebSocketHandler(GameService gameService, UserService userService) {
+    }
 //    private final GameService  gameService;
 //    private final UserService  userService;
 }
