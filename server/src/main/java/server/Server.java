@@ -37,6 +37,7 @@ public class Server {
             res.type("application/json");
             res.body(new Gson().toJson(Map.of("error", exception.getMessage())));
         });
+        Spark.webSocket("/ws", new WebSocketHandler(gameService, userService));
         Spark.delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
         Spark.post("/session", userHandler::login);
@@ -44,7 +45,7 @@ public class Server {
         Spark.post("/game", gameHandler::createGame);
         Spark.put("/game", gameHandler::joinGame);
         Spark.get("/game", gameHandler::listGames);
-        Spark.webSocket("/ws", new WebSocketHandler(gameService, userService));
+
         Spark.init();
         Spark.awaitInitialization();
         return Spark.port();
