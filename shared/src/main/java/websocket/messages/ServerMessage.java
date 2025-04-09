@@ -1,15 +1,21 @@
 package websocket.messages;
 
 import java.util.Objects;
+import chess.ChessGame;
 
 /**
  * Represents a Message the server can send through a WebSocket
- * 
- * Note: You can add to this class, but you should not alter the existing
- * methods.
+ *
+ * Note: You can add to this class, but you should not alter the existing methods.
  */
 public class ServerMessage {
+
     ServerMessageType serverMessageType;
+
+    // New fields for additional message data
+    private ChessGame game;
+    private String errorMessage;
+    private String message;
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -23,6 +29,30 @@ public class ServerMessage {
 
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
+    }
+
+    public ChessGame getGame() {
+        return game;
+    }
+
+    public void setGame(ChessGame game) {
+        this.game = game;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     @Override

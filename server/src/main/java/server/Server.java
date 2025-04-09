@@ -37,6 +37,7 @@ public class Server {
             res.type("application/json");
             res.body(new Gson().toJson(Map.of("error", exception.getMessage())));
         });
+        Spark.webSocket("/ws", websocket.ChessGameWebSocket.class);
         Spark.delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
         Spark.post("/session", userHandler::login);
