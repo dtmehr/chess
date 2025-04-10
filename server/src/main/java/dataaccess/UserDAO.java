@@ -8,7 +8,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
-public class MemoryGameDAO implements GameDAO {
+public class UserDAO implements GameDAO {
 
     private Map<String, UserData> users = new HashMap<>();
     private Map<String, AuthData> authTokens = new HashMap<>();
