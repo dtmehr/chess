@@ -6,7 +6,7 @@ import model.GameData;
 import java.util.Collection;
 
 //will include CRUD stuff here?
-public interface DataAccess {
+public interface GameDAO {
 
     //user
     void clear() throws DataAccessException;

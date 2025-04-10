@@ -8,10 +8,10 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 import java.util.*;
 
-public class SqlDataAccess implements DataAccess{
+public class SqlGameDAO implements GameDAO {
     private final Gson gson = new GsonBuilder().create();
 
-    public SqlDataAccess() throws DataAccessException {
+    public SqlGameDAO() throws DataAccessException {
         configureDatabase();
     }
 

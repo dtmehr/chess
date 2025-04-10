@@ -6,15 +6,15 @@ import service.GameService;
 import service.UserService;
 
 @SuppressWarnings("PMD.DuplicateCode")
-public class SqlDataAccessTests {
+public class SqlGameDAOTests {
     private UserService userService;
     private GameService gameService;
 
     @BeforeEach
     void setup() throws DataAccessException {
-        DataAccess dataAccess = new SqlDataAccess();
-        userService = new UserService(dataAccess);
-        gameService = new GameService(dataAccess);
+        GameDAO gameDAO = new SqlGameDAO();
+        userService = new UserService(gameDAO);
+        gameService = new GameService(gameDAO);
         userService.clear();
     }
 
