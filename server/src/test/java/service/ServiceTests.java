@@ -1,9 +1,9 @@
 package service;
 
-import dataaccess.DataAccess;
+import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
 import dataaccess.GameTests;
-import dataaccess.MemoryDataAccess;
+import dataaccess.UserDAO;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,14 +16,14 @@ public class ServiceTests extends GameTests {
 
     @BeforeEach
     public void setUp() throws DataAccessException {
-        DataAccess dataAccess = new MemoryDataAccess();
-        userService = new UserService(dataAccess);
-        gameService = new GameService(dataAccess);
+        GameDAO gameDAO = new UserDAO();
+        userService = new UserService(gameDAO);
+        gameService = new GameService(gameDAO);
         userService.clear();
     }
 
     @Override
-    protected DataAccess createDataAccess() {
+    protected GameDAO createDataAccess() {
         return null;
     }
 

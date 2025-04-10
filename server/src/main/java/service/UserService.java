@@ -1,29 +1,29 @@
 package service;
 
 
-import dataaccess.DataAccess;
-import dataaccess.MemoryDataAccess;
+import dataaccess.GameDAO;
+import dataaccess.UserDAO;
 import dataaccess.DataAccessException;
-import dataaccess.SqlDataAccess;
+import dataaccess.SqlGameDAO;
 import model.AuthData;
 
 
 public class UserService {
-    private final DataAccess dataAccess;
+    private final GameDAO gameDAO;
     public record RegisterResult(String username, String authToken) {}
     public record LoginResult(String username, String authToken) {}
 
 
-    public UserService(DataAccess dataAccess) {
-        this.dataAccess = dataAccess;
+    public UserService(GameDAO gameDAO) {
+        this.gameDAO = gameDAO;
     }
 
     public void clear() throws DataAccessException {
-        dataAccess.clear();
+        gameDAO.clear();
     }
 
     public String getUsernameFromToken(String token) throws DataAccessException {
-        AuthData authData = dataAccess.getAuthData(token);
+        AuthData authData = gameDAO.getAuthData(token);
         if (authData == null) {
             throw new DataAccessException("unauthorized");
         }
@@ -31,13 +31,13 @@ public class UserService {
     }
 
     public RegisterResult register(String username, String password, String email) throws DataAccessException {
-        dataAccess.createUser(username, password, email);
+        gameDAO.createUser(username, password, email);
         //used to pass normal vs invalid tests
         String authToken = AuthTokenGen.genAuthToken();
-        if (dataAccess instanceof MemoryDataAccess) {
-            ((MemoryDataAccess)dataAccess).forceAuth(username, authToken);
-        } else if (dataAccess instanceof SqlDataAccess) {
-            ((SqlDataAccess)dataAccess).forceAuth(username, authToken);
+        if (gameDAO instanceof UserDAO) {
+            ((UserDAO) gameDAO).forceAuth(username, authToken);
+        } else if (gameDAO instanceof SqlGameDAO) {
+            ((SqlGameDAO) gameDAO).forceAuth(username, authToken);
         }
         return new RegisterResult(username, authToken);
     }
@@ -45,7 +45,7 @@ public class UserService {
 
 
     public LoginResult login(String username, String password) throws DataAccessException {
-        String authToken = dataAccess.login(username, password);
+        String authToken = gameDAO.login(username, password);
         return new LoginResult(username, authToken);
     }
 
@@ -55,7 +55,7 @@ public class UserService {
         if (authToken == null) {
             throw new DataAccessException("unauthorized");
         }
-        boolean removed = dataAccess.logout(authToken);
+        boolean removed = gameDAO.logout(authToken);
         if (!removed) {
             throw new DataAccessException("unauthorized");
         }

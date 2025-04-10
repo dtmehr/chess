@@ -1,9 +1,9 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccess;
+import dataaccess.GameDAO;
 import dataaccess.DataAccessException;
-import dataaccess.SqlDataAccess;
+import dataaccess.SqlGameDAO;
 import service.GameService;
 import service.UserService;
 import spark.*;
@@ -11,7 +11,7 @@ import java.util.Map;
 import static spark.Spark.delete;
 
 public class Server {
-    DataAccess dataAccess;
+    GameDAO gameDAO;
     UserService userService;
     UserHandler userHandler;
     GameService gameService;
@@ -19,13 +19,13 @@ public class Server {
 
     public Server() {
         try {
-            dataAccess = new SqlDataAccess();
+            gameDAO = new SqlGameDAO();
         } catch (DataAccessException e) {
             throw new RuntimeException("Failed to initialize SqlDataAccess", e);
         }
-        userService = new UserService(dataAccess);
+        userService = new UserService(gameDAO);
         userHandler = new UserHandler(userService);
-        gameService = new GameService(dataAccess);
+        gameService = new GameService(gameDAO);
         gameHandler = new GameHandler(gameService, userService);
     }
 
@@ -37,7 +37,7 @@ public class Server {
             res.type("application/json");
             res.body(new Gson().toJson(Map.of("error", exception.getMessage())));
         });
-        Spark.webSocket("/ws", new WebSocketHandler(gameService, userService));
+//       Spark.webSocket("/ws", new WebSocketHandler(gameService, userService));
         Spark.delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
         Spark.post("/session", userHandler::login);

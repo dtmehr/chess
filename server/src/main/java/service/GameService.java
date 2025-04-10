@@ -1,32 +1,32 @@
 package service;
 import dataaccess.DataAccessException;
-import dataaccess.DataAccess;
+import dataaccess.GameDAO;
 import model.GameData;
 
 import java.util.Collection;
 
 
 public class GameService {
-    private final DataAccess dataAccess;
+    private final GameDAO gameDAO;
 
 
-    public GameService(DataAccess dataAccess) {
-        this.dataAccess = dataAccess;
+    public GameService(GameDAO gameDAO) {
+        this.gameDAO = gameDAO;
     }
 
     public int createGame(String authToken, String gameId) throws DataAccessException {
         if (gameId == null || gameId.isEmpty()) {
             throw new DataAccessException("bad request");
         }
-        return dataAccess.createGame(authToken, gameId);
+        return gameDAO.createGame(authToken, gameId);
     }
 
     public void joinGame(String authToken, int gameId, String playerColor) throws DataAccessException {
-        dataAccess.joinGame(gameId, authToken, playerColor);
+        gameDAO.joinGame(gameId, authToken, playerColor);
     }
 
     public Collection<GameData> listGames() throws DataAccessException{
-        return dataAccess.listGames();
+        return gameDAO.listGames();
     }
 
 }
