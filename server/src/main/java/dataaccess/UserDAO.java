@@ -16,6 +16,7 @@ public class UserDAO implements GameDAO {
     private int gameIdCount = 1;
 
 
+
     //these might be put in the wrong file tbd
     //methods
     @Override
@@ -126,6 +127,22 @@ public class UserDAO implements GameDAO {
     public Collection<GameData> listGames() {
         return games.values();
     }
+
+    @Override
+    public GameData getGame(int gameID) throws DataAccessException {
+        GameData game = games.get(gameID);
+        if (game == null) {
+            throw new DataAccessException("Game not found");
+        }
+        return game;
+    }
+
+    @Override
+    public void updateGame(int gameID, GameData game) throws DataAccessException {
+        // Replace the existing game with the updated game data.
+        games.put(gameID, game);
+    }
+
 
 
 }

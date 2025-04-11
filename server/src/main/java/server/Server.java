@@ -1,13 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.GameDAO;
-import dataaccess.DataAccessException;
-import dataaccess.SqlGameDAO;
+import dataaccess.*;
 import service.GameService;
 import service.UserService;
 import spark.*;
 import java.util.Map;
+
+import static server.WebSocketHandler.authDAO;
+import static server.WebSocketHandler.userDAO;
 import static spark.Spark.delete;
 
 public class Server {
@@ -27,6 +28,9 @@ public class Server {
         userHandler = new UserHandler(userService);
         gameService = new GameService(gameDAO);
         gameHandler = new GameHandler(gameService, userService);
+//        UserDAO userDAO = new UserDAOImpl();
+//        AuthDAO authDAO = new AuthDAOImpl();
+//        GameDAO gameDAO = new GameDAOImpl();
     }
 
     public int run(int desiredPort) {
@@ -37,11 +41,12 @@ public class Server {
             res.type("application/json");
             res.body(new Gson().toJson(Map.of("error", exception.getMessage())));
         });
-//       Spark.webSocket("/ws", new WebSocketHandler(gameService, userService));
-        Spark.delete("/db", this::clear);
+        WebSocketHandler.initialize(userDAO, authDAO, gameDAO);
+        Spark.webSocket("/ws", WebSocketHandler.class);
+        delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
         Spark.post("/session", userHandler::login);
-        Spark.delete("/session", userHandler::logout);
+        delete("/session", userHandler::logout);
         Spark.post("/game", gameHandler::createGame);
         Spark.put("/game", gameHandler::joinGame);
         Spark.get("/game", gameHandler::listGames);

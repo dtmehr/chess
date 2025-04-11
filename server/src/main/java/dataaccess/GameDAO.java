@@ -19,5 +19,7 @@ public interface GameDAO {
     void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException;
     AuthData getAuthData(String token) throws DataAccessException;
     Collection<GameData> listGames()throws DataAccessException;
+    GameData getGame(int gameID) throws DataAccessException;
+    void updateGame(int gameID, GameData game) throws DataAccessException;
 }
 
