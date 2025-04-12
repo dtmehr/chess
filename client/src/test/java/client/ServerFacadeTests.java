@@ -39,8 +39,8 @@ public class ServerFacadeTests {
     public void registerTestValid() throws Exception {
         String username = "jakeman32_" + System.currentTimeMillis();
         AuthData result = facade.register(username, "password123", "jack@email.com");
-        assertEquals(username, result.username, "username needs to match");
-        assertNotNull(result.authToken, "Token should not be null");
+        assertEquals(username, result.getUsername(), "username needs to match");
+        assertNotNull(result.getAuthToken(), "Token should not be null");
     }
 
     @Test
@@ -56,8 +56,8 @@ public class ServerFacadeTests {
         String username = "jimmer";
         facade.register(username, "32", "jimmer@mail.com");
         AuthData result = facade.login(username, "32");
-        assertEquals(username, result.username);
-        assertNotNull(result.authToken);
+        assertEquals(username, result.getUsername());
+        assertNotNull(result.getAuthToken());
     }
 
     @Test
@@ -74,9 +74,9 @@ public class ServerFacadeTests {
     public void logoutTestValid() throws Exception {
         String username = "Jimmer";
         AuthData registered = facade.register(username, "32", "Jimmer@mail.com");
-        facade.logout(registered.authToken);
+        facade.logout(registered.getAuthToken());
         Exception exception = assertThrows(Exception.class, () -> {
-            facade.logout(registered.authToken);
+            facade.logout(registered.getAuthToken());
         });
         String message = exception.getMessage();
         assertNotNull(message, "Exception message should not be null");
@@ -98,7 +98,7 @@ public class ServerFacadeTests {
         String username = "Jimmer";
         AuthData registered = facade.register(username, "32", "jimmer@mail.com");
         //not sure if this authtoken works or not
-        int gameID = facade.createGame(registered.authToken, "032");
+        int gameID = facade.createGame(registered.getAuthToken(), "032");
         assertTrue(gameID > 0);
     }
 
@@ -116,8 +116,8 @@ public class ServerFacadeTests {
         String user2 = "Stevejobster";
         AuthData jimmer = facade.register(user1, "32", "jimmer@mail.com");
         AuthData steve = facade.register(user2, "Jobs", "jobs@mail.com");
-        int gameID = facade.createGame(jimmer.authToken, "Game_078");
-        facade.joinGame(steve.authToken, gameID, "BLACK");
+        int gameID = facade.createGame(jimmer.getAuthToken(), "Game_078");
+        facade.joinGame(steve.getAuthToken(), gameID, "BLACK");
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ServerFacadeTests {
         String username = "Jimmer";
         AuthData jimmer = facade.register(username, "32", "jimmer@mail.com");
         Exception exception = assertThrows(Exception.class, () -> {
-            facade.joinGame(jimmer.authToken, 9999, "WHITE");});
+            facade.joinGame(jimmer.getAuthToken(), 9999, "WHITE");});
         assertTrue(exception.getMessage().contains("Join game failed"));
     }
 
@@ -133,9 +133,9 @@ public class ServerFacadeTests {
     public void listTestValid() throws Exception {
         String username = "JimmerMan";
         AuthData jimmer = facade.register(username, "32", "jimmer@mail.com");
-        facade.createGame(jimmer.authToken, "Game One");
-        facade.createGame(jimmer.authToken, "Game Two");
-        Collection<GameData> allGames = facade.listGames(jimmer.authToken);
+        facade.createGame(jimmer.getAuthToken(), "Game One");
+        facade.createGame(jimmer.getAuthToken(), "Game Two");
+        Collection<GameData> allGames = facade.listGames(jimmer.getAuthToken());
         assertEquals(2, allGames.size());
     }
 
