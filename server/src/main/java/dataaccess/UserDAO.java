@@ -3,12 +3,13 @@ package dataaccess;
 import java.util.Collection;
 import java.util.Map;
 import java.util.HashMap;
+import chess.ChessGame;
 import service.AuthTokenGen;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
-public class UserDAO implements GameDAO {
+public class UserDAO implements GameDAO, AuthDAO {
 
     private Map<String, UserData> users = new HashMap<>();
     private Map<String, AuthData> authTokens = new HashMap<>();
@@ -16,6 +17,10 @@ public class UserDAO implements GameDAO {
     private int gameIdCount = 1;
 
 
+    @Override
+    public AuthData getAuth(String authToken) throws DataAccessException {
+        return getAuthData(authToken);
+    }
 
     //these might be put in the wrong file tbd
     //methods
@@ -78,17 +83,19 @@ public class UserDAO implements GameDAO {
 
     @Override
     public int createGame(String makerToken, String gameName) throws DataAccessException {
-        //check for token or throe err
+        // Check authentication token.
         if (!authTokens.containsKey(makerToken)) {
             throw new DataAccessException("unauthorized");
         }
         int newGameId = gameIdCount++;
         GameData newGame = new GameData(newGameId);
-        //changes
+        // Set the game name.
         newGame.setGameName(gameName);
+        newGame.setChessGame(new ChessGame());
         games.put(newGameId, newGame);
         return newGameId;
     }
+
 
     @Override
     public void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException {
