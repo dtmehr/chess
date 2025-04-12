@@ -22,7 +22,6 @@ public class ChessGame {
     private boolean endGame;
     private ChessBoard board;
     private TeamColor teamTurn;
-    private boolean resigned;
 
 
     public ChessGame() {
@@ -299,7 +298,7 @@ public class ChessGame {
     }
 
     public void setResigned() {
-        resigned = true;
+        boolean resigned = true;
         endGame = true;
     }
 
