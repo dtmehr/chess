@@ -22,6 +22,7 @@ public class ChessGame {
     private boolean endGame;
     private ChessBoard board;
     private TeamColor teamTurn;
+    private boolean resigned;
 
 
     public ChessGame() {
@@ -297,6 +298,10 @@ public class ChessGame {
                 teamTurn == chessGame.teamTurn;
     }
 
+    public void setResigned() {
+        resigned = true;
+        endGame = true;
+    }
 
     @Override
     public int hashCode() {
