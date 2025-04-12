@@ -82,7 +82,7 @@ public class ChessClient {
         System.out.println("registration successful");
     }
 
-    private static void menu() throws Exception {
+    static void menu() throws Exception {
         System.out.println("main menu");
         System.out.println("help");
         System.out.println("logout");
@@ -172,21 +172,31 @@ public class ChessClient {
         System.out.println("you have joined game '" + lastGameList.get(number - 1).getGameName() +
                 "' as " + color + ".");
         boolean whitePerspective = color.equals("WHITE");
-        CreateBoard.drawBoard(whitePerspective);
-    }
 
-    private static void observeGame() {
+        GameplaySession session = new GameplaySession(currentAuthToken, gameID, whitePerspective);
+        session.start();
+    }
+    private static void observeGame() throws Exception {
         if (lastGameList == null || lastGameList.isEmpty()) {
             System.out.println("please list games first");
             return;
         }
-        System.out.print("enter the game number you want to observe");
-        int number = Integer.parseInt(SCAN.nextLine().trim());
+        System.out.print("enter the game number you want to observe: ");
+        int number;
+        try {
+            number = Integer.parseInt(SCAN.nextLine().trim());
+        } catch (NumberFormatException e) {
+            System.out.println("please enter a valid number");
+            return;
+        }
         if (number < 1 || number > lastGameList.size()) {
             System.out.println("invalid game number");
             return;
         }
-        System.out.println("observing game '" + lastGameList.get(number - 1).getGameName() + "'.");
-        CreateBoard.drawBoard(true);
+        int gameID = lastGameList.get(number - 1).getGameID();
+        System.out.println("Observing game '" + lastGameList.get(number - 1).getGameName() + "'.");
+        boolean whitePerspective = true;
+        GameplaySession session = new GameplaySession(currentAuthToken, gameID, whitePerspective);
+        session.start();
     }
 }

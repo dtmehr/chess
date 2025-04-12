@@ -66,35 +66,32 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         //get piece
         ChessPiece piece = board.getPiece(startPosition);
-        if(piece == null){
+        if(piece == null) {
             return new HashSet<>();
         }
 
         //all moves before doing filtering
         Collection<ChessMove> unfilteredMoves = piece.pieceMoves(board, startPosition);
-        Collection<ChessMove> moves = new HashSet<>();
+        HashSet<ChessMove> validMoves = new HashSet<>();
 
-
-        for(ChessMove move : unfilteredMoves){
+        for(ChessMove move : unfilteredMoves) {
             //use the copy method made earlier
             ChessBoard copiedBoard = board.copyBoard();
-            ChessPiece toMove = copiedBoard.getPiece(move.getStartPosition());
+            ChessPiece movingPiece = copiedBoard.getPiece(move.getStartPosition());
             copiedBoard.addPiece(move.getStartPosition(), null);
-            copiedBoard.addPiece(move.getEndPosition(), toMove);
+            copiedBoard.addPiece(move.getEndPosition(), movingPiece);
 
             ChessGame tempGame = new ChessGame();
             tempGame.setBoard(copiedBoard);
             tempGame.setTeamTurn(piece.getTeamColor());
 
             //make sure king not in check in order to add move
-            if(!tempGame.isInCheck(piece.getTeamColor())){
-                moves.add(move);
+            if(!tempGame.isInCheck(piece.getTeamColor())) {
+                validMoves.add(move);
             }
-
         }
 
-        //do later, got stuck
-        return moves;
+        return validMoves;
     }
 
 
