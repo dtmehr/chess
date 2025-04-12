@@ -34,7 +34,6 @@ public class WebSocketHandler {
     }
 
     private final ConnectionM connections = new ConnectionM();
-    public static void initialize(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {}
 
     //cases
     @OnWebSocketMessage
@@ -99,7 +98,7 @@ public class WebSocketHandler {
         connections.broadcast(username, notification, gameID);
     }
 
-    private String PlayerColo(GameData game, String authToken) throws DataAccessException {
+    private String playerColor(GameData game, String authToken) throws DataAccessException {
         String username = authDAO.getAuth(authToken).getUsername();
         if (username.equals(game.getWhiteUsername())) {
             return "WHITE";
@@ -178,7 +177,7 @@ public class WebSocketHandler {
                 session.getRemote().sendString(jsonError("Error: game is already over"));
                 return;
             }
-            String playerColor = PlayerColo(game, command.getAuthToken());
+            String playerColor = playerColor(game, command.getAuthToken());
             if (playerColor.equals("OBSERVER")) {
                 session.getRemote().sendString(jsonError("Error: cannot move as an observer"));
                 return;

@@ -6,9 +6,6 @@ import service.GameService;
 import service.UserService;
 import spark.*;
 import java.util.Map;
-
-import static server.WebSocketHandler.authDAO;
-import static server.WebSocketHandler.userDAO;
 import static spark.Spark.delete;
 
 public class Server {
@@ -28,9 +25,6 @@ public class Server {
         userHandler = new UserHandler(userService);
         gameService = new GameService(gameDAO);
         gameHandler = new GameHandler(gameService, userService);
-//        UserDAO userDAO = new UserDAOImpl();
-//        AuthDAO authDAO = new AuthDAOImpl();
-//        GameDAO gameDAO = new GameDAOImpl();
     }
 
     public int run(int desiredPort) {
