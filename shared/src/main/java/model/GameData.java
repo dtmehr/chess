@@ -11,6 +11,7 @@ public class GameData {
 
 
     private String winner;
+    private String resignedPlayer;
 
 
     private boolean gameOver;
@@ -22,6 +23,13 @@ public class GameData {
     }
     public void setGameID(int gameID) {
         this.gameID = gameID;
+    }
+    public String getResignedPlayer() {
+        return resignedPlayer;
+    }
+
+    public void setResignedPlayer(String resignedPlayer) {
+        this.resignedPlayer = resignedPlayer;
     }
     public String getWhiteUsername() {
         return whiteUsername;
