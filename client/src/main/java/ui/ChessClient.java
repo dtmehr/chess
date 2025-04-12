@@ -66,7 +66,7 @@ public class ChessClient {
         System.out.print("enter password: ");
         String password = SCAN.nextLine().trim();
         AuthData authData = facade.login(username, password);
-        currentAuthToken = authData.authToken;
+        currentAuthToken = authData.getAuthToken();
         System.out.println("login successful.");
     }
 
@@ -78,7 +78,7 @@ public class ChessClient {
         System.out.print("enter email: ");
         String email = SCAN.nextLine().trim();
         AuthData authData = facade.register(username, password, email);
-        currentAuthToken = authData.authToken;
+        currentAuthToken = authData.getAuthToken();
         System.out.println("registration successful");
     }
 

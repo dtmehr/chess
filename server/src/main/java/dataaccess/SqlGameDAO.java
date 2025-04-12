@@ -220,6 +220,8 @@ public class SqlGameDAO implements GameDAO {
         GameData newGame = new GameData(0);
         newGame.setChessGame(new ChessGame());
 
+        newGame.setGameName(gameName);
+
         try (var connection = getConnection()) {
             String insertSql = "INSERT INTO game (game_json) VALUES (?)";
             try (var statement = connection.prepareStatement(insertSql)) {

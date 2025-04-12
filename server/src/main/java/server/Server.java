@@ -41,7 +41,11 @@ public class Server {
             res.type("application/json");
             res.body(new Gson().toJson(Map.of("error", exception.getMessage())));
         });
-        WebSocketHandler.initialize(userDAO, authDAO, gameDAO);
+        try {
+            Spark.webSocket("/ws", new WebSocketHandler());
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to initialize WebSocketHandler", e);
+        }
         Spark.webSocket("/ws", WebSocketHandler.class);
         delete("/db", this::clear);
         Spark.post("/user", userHandler::register);
