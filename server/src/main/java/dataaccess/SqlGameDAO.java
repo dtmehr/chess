@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import model.AuthData;
@@ -7,6 +8,7 @@ import model.GameData;
 import org.mindrot.jbcrypt.BCrypt;
 import java.sql.SQLException;
 import java.util.*;
+import static dataaccess.DatabaseManager.getConnection;
 
 public class SqlGameDAO implements GameDAO {
     private final Gson gson = new GsonBuilder().create();
@@ -15,10 +17,11 @@ public class SqlGameDAO implements GameDAO {
         configureDatabase();
     }
 
+
     //used for register on UserService
     //changed functionality from MemoryDataAccess to actually work for sql stuff
     public void forceAuth(String username, String token) throws DataAccessException {
-        try (var connection = DatabaseManager.getConnection()) {
+        try (var connection = getConnection()) {
             String sql = """
             INSERT INTO auth (token, username)
             VALUES (?, ?)
@@ -70,7 +73,7 @@ public class SqlGameDAO implements GameDAO {
 
     private void configureDatabase() throws DataAccessException{
         DatabaseManager.createDatabase();
-        try (var connection = DatabaseManager.getConnection()){
+        try (var connection = getConnection()){
             for (var statement : createStatements) {
                 try (var preparedStatement = connection.prepareStatement(statement)) {
                     preparedStatement.executeUpdate();
@@ -90,7 +93,7 @@ public class SqlGameDAO implements GameDAO {
  //major changes
     @Override
     public void clear() throws DataAccessException {
-        try (var connection = DatabaseManager.getConnection()) {
+        try (var connection = getConnection()) {
             try (var statement = connection.createStatement()) {
                 statement.execute("SET FOREIGN_KEY_CHECKS = 0");
             }
@@ -117,7 +120,7 @@ public class SqlGameDAO implements GameDAO {
     @Override
     public void createUser(String username, String password, String email) throws DataAccessException {
         // check if username is taken
-        try (var connection = DatabaseManager.getConnection()) {
+        try (var connection = getConnection()) {
             String checkSql = "SELECT username FROM user WHERE username = ?";
             try (var check = connection.prepareStatement(checkSql)) {
                 check.setString(1, username);
@@ -152,7 +155,7 @@ public class SqlGameDAO implements GameDAO {
             throw new DataAccessException("Wrong username or password");
         }
         //connect and check if username exists
-        try (var connection = DatabaseManager.getConnection()) {
+        try (var connection = getConnection()) {
             String sql = "SELECT password, email FROM user WHERE username = ?";
             try (var statement = connection.prepareStatement(sql)) {
                 statement.setString(1, username);
@@ -189,7 +192,7 @@ public class SqlGameDAO implements GameDAO {
     @Override
     public boolean logout(String authToken) throws DataAccessException {
         //delete token from auth
-        try (var connection = DatabaseManager.getConnection()) {
+        try (var connection = getConnection()) {
             String sql = "DELETE FROM auth WHERE token = ?";
             try (var statement = connection.prepareStatement(sql)) {
                 statement.setString(1, authToken);
@@ -208,23 +211,21 @@ public class SqlGameDAO implements GameDAO {
     //major rework changes
     @Override
     public int createGame(String makerToken, String gameName) throws DataAccessException {
-        //check not null
+        // check token and retrieve authData
         AuthData authData = getAuthData(makerToken);
         if (authData == null) {
             throw new DataAccessException("currently null");
         }
-        // temp id
+
         GameData newGame = new GameData(0);
-        newGame.setGameName(gameName);
-//insert empty
-        try (var connection = DatabaseManager.getConnection()) {
+        newGame.setChessGame(new ChessGame());
+
+        try (var connection = getConnection()) {
             String insertSql = "INSERT INTO game (game_json) VALUES (?)";
             try (var statement = connection.prepareStatement(insertSql)) {
-                //basically insert
                 statement.setString(1, gson.toJson(newGame));
                 statement.executeUpdate();
             }
-            //last inserted
             String selectSql = "SELECT LAST_INSERT_ID()";
             int generatedId;
             try (var selectStmt = connection.prepareStatement(selectSql);
@@ -248,6 +249,7 @@ public class SqlGameDAO implements GameDAO {
         }
     }
 
+
     @Override
     public void joinGame(int gameID, String authToken, String teamColor) throws DataAccessException {
         // check auth
@@ -260,7 +262,7 @@ public class SqlGameDAO implements GameDAO {
             throw new DataAccessException("bad request");
         }
         // grab the game
-        try (var conn = DatabaseManager.getConnection()) {
+        try (var conn = getConnection()) {
             String selectSql = "SELECT game_json FROM game WHERE game_id = ?";
             try (var select = conn.prepareStatement(selectSql)) {
                 select.setInt(1, gameID);
@@ -302,7 +304,7 @@ public class SqlGameDAO implements GameDAO {
     //same patter as before btu for sql
     @Override
     public AuthData getAuthData(String token) throws DataAccessException {
-        try (var connection = DatabaseManager.getConnection()) {
+        try (var connection = getConnection()) {
             String sql = "SELECT username FROM auth WHERE token = ?";
             try (var statement = connection.prepareStatement(sql)) {
                 statement.setString(1, token);
@@ -319,26 +321,65 @@ public class SqlGameDAO implements GameDAO {
         return null;
     }
 
-//list games but for sql
+
     @Override
     public Collection<GameData> listGames() throws DataAccessException {
         List<GameData> allGames = new ArrayList<>();
         String sql = "SELECT game_json FROM game";
-        try (var connection = DatabaseManager.getConnection();
-             var statement = connection.prepareStatement(sql);
-             var result = statement.executeQuery()) {
-
-            while (result.next()) {
-                String gameJson = result.getString("game_json");
-                GameData gameData = gson.fromJson(gameJson, GameData.class);
-                allGames.add(gameData);
+        try (var conn = getConnection();
+             var ps   = conn.prepareStatement(sql);
+             var rs   = ps.executeQuery()) {
+            while (rs.next()) {
+                String json = rs.getString("game_json");
+                allGames.add(gson.fromJson(json, GameData.class));
             }
-
         } catch (SQLException e) {
-            throw new DataAccessException("listGames() fail" + e.getMessage());
+            throw new DataAccessException("listGames() fail: " + e.getMessage());
         }
         return allGames;
     }
+
+
+
+    //possible help later
+    @Override
+    //assuming throw exception is a must here because it always seems to be
+    public void updateGame(int gameID, GameData game) throws DataAccessException {
+        try (var connection = getConnection()) {
+            //update the squel
+            String updateSql = "UPDATE game SET game_json = ? WHERE game_id = ?";
+            //try catch statement stuff
+            try (var statement = connection.prepareStatement(updateSql)) {
+                statement.setString(1, gson.toJson(game));
+                statement.setInt(2, gameID);
+                statement.executeUpdate();
+            }
+            //literally just the same catch as always
+        } catch (SQLException e) {
+            throw new DataAccessException("updateGame() error: " + e.getMessage());
+        }
+    }
+
+//list games but for sql
+@Override
+public GameData getGame(int gameID) throws DataAccessException {
+    String sql = "SELECT game_json FROM game WHERE game_id = ?";
+    try (var conn = getConnection();
+         var ps   = conn.prepareStatement(sql)) {
+        ps.setInt(1, gameID);
+        try (var rs = ps.executeQuery()) {
+            if (!rs.next()) {
+                return null;
+            }
+            // Pull the entire JSON blob and deserialize it:
+            String json = rs.getString("game_json");
+            return gson.fromJson(json, GameData.class);
+        }
+    } catch (SQLException e) {
+        throw new DataAccessException("getGame() error: " + e.getMessage());
+    }
+}
+
 
 }
 
